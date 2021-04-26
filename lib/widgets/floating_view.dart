@@ -1,0 +1,181 @@
+import 'package:flutter/material.dart';
+
+///悬浮按钮Demo
+class FloatingView extends StatefulWidget {
+  FloatingView({
+    Key key,
+    @required this.child,
+    this.offsetX = 0,
+    this.offsetY = 0,
+    this.backEdge = true,
+    this.animTime = 500,
+  }) : super(key: key);
+
+  //悬浮Child
+  Widget child;
+
+  //偏移量X
+  double offsetX;
+
+  //偏移量Y
+  double offsetY;
+
+  //是否回归边缘
+  bool backEdge;
+
+  //动画时间
+  int animTime;
+
+  @override
+  State<StatefulWidget> createState() {
+    return FloatingViewState();
+  }
+}
+
+class FloatingViewState extends State<FloatingView>
+    with SingleTickerProviderStateMixin {
+  //悬浮view的位置
+  Offset offset = Offset.infinite;
+
+  //悬浮view的key
+  GlobalKey floatingKey = GlobalKey();
+
+  //位移动画控制器
+  AnimationController controller;
+
+  //位移动画
+  Animation<double> animation;
+
+  //动画开始X
+  double animStartX;
+
+  //动画结束X
+  double animEndX;
+
+  double width, height, screenWidth, screenHeight;
+
+  @override
+  void initState() {
+    super.initState();
+    offset = Offset(widget.offsetX, widget.offsetY);
+    //初始化动画控制器
+    controller = new AnimationController(
+      duration: Duration(milliseconds: widget.animTime),
+      vsync: this,
+    );
+
+    //Frame绘制完后进行回调，并只会回调一次
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //悬浮宽
+      width = floatingKey.currentContext.size.width;
+      //悬浮高
+      height = floatingKey.currentContext.size.height;
+
+      //获取屏幕信息
+      final size = MediaQuery.of(context).size;
+      //屏幕宽
+      screenWidth = size.width;
+      //屏幕高
+      screenHeight = size.height;
+
+      //悬浮位置设置
+      if (widget.offsetX <= 0 && widget.offsetY <= 0) {
+        offset = Offset(screenWidth - width, screenHeight - height - 100);
+      } else {
+        double x = offset.dx;
+        double y = offset.dy;
+        //X轴越界处理
+        if (widget.offsetX <= 0) {
+          x = 0;
+        } else if (widget.offsetX > screenWidth - width) {
+          x = screenWidth - width;
+        }
+
+        //Y轴越界处理
+        if (widget.offsetY <= 0) {
+          y = 0;
+        } else if (widget.offsetY > screenHeight - height) {
+          y = screenHeight - height;
+        }
+        offset = Offset(x, y);
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: offset.dx,
+      top: offset.dy,
+      child: _floatingWindow(),
+    );
+  }
+
+  /// 全局悬浮控件
+  Widget _floatingWindow() {
+    return GestureDetector(
+      //deferToChild:child处理事件
+      behavior: HitTestBehavior.deferToChild,
+      //手指接触屏幕并可能开始移动
+      onPanDown: (details) {
+        setState(() {});
+      },
+      //手指接触屏幕并移动
+      onPanUpdate: (DragUpdateDetails details) {
+        offset = offset + details.delta;
+        setState(() {});
+      },
+      //手指离开屏幕
+      onPanEnd: (details) {
+        //是否回到边缘
+        if (widget.backEdge) {
+          //动画开始位置X
+          double oldX = offset.dx;
+
+          //抬手时 如悬浮view中心在屏幕左边就回归左边，否则右边
+          if (offset.dx <= screenWidth / 2 - width / 2) {
+            offset = Offset(0, offset.dy);
+          } else {
+            offset = Offset(screenWidth - width, offset.dy);
+          }
+
+          //抬手时，Y轴位置超出最上面处理
+          if (offset.dy <= 0) {
+            offset = Offset(offset.dx, 0);
+          }
+          //抬手时，Y轴位置超出最下面处理
+          if (offset.dy >= screenHeight - height) {
+            offset = Offset(offset.dx, screenHeight - height);
+          }
+
+          //动画结束位置X
+          double newX = offset.dx;
+
+          //创建动画
+          animation = new Tween(begin: oldX, end: newX).animate(controller)
+            ..addListener(() {
+              setState(() {
+                offset = Offset(animation.value, offset.dy);
+              });
+            });
+
+          //执行动画
+          controller.reset();
+          controller.forward();
+        }
+      },
+      child: Material(
+        color: Colors.transparent,
+        key: floatingKey,
+        child: widget.child,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+}
