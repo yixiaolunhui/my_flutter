@@ -52,7 +52,11 @@ class FloatingViewState extends State<FloatingView>
   //动画结束X
   double animEndX;
 
-  double width, height, screenWidth, screenHeight;
+  //悬浮view宽高
+  double width, height;
+
+  //屏幕宽高
+  double screenWidth, screenHeight;
 
   @override
   void initState() {
@@ -124,6 +128,22 @@ class FloatingViewState extends State<FloatingView>
       //手指接触屏幕并移动
       onPanUpdate: (DragUpdateDetails details) {
         offset = offset + details.delta;
+
+        //拖动时越界处理-start
+        if (offset.dx < 0) {
+          offset = Offset(0, offset.dy);
+        }
+        if (offset.dx >= screenWidth - width) {
+          offset = Offset(screenWidth - width, offset.dy);
+        }
+        if (offset.dy < 0) {
+          offset = Offset(offset.dx, 0);
+        }
+        if (offset.dy >= screenHeight - height) {
+          offset = Offset(offset.dx, screenHeight - height);
+        }
+        //拖动时越界处理-end
+
         setState(() {});
       },
       //手指离开屏幕
@@ -138,15 +158,6 @@ class FloatingViewState extends State<FloatingView>
             offset = Offset(0, offset.dy);
           } else {
             offset = Offset(screenWidth - width, offset.dy);
-          }
-
-          //抬手时，Y轴位置超出最上面处理
-          if (offset.dy <= 0) {
-            offset = Offset(offset.dx, 0);
-          }
-          //抬手时，Y轴位置超出最下面处理
-          if (offset.dy >= screenHeight - height) {
-            offset = Offset(offset.dx, screenHeight - height);
           }
 
           //动画结束位置X

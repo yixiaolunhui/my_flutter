@@ -113,7 +113,7 @@ class ClockViewState extends State<ClockView> {
     super.dispose();
     //取消定时器
     if (timer.isActive) {
-      timer.cancel();
+      timer?.cancel();
     }
   }
 
@@ -330,6 +330,7 @@ class ClockPainter extends CustomPainter {
     }
   }
 
+  //判断是否需要重绘
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
@@ -496,7 +497,7 @@ class ClockPainter extends CustomPainter {
     );
   }
 
-  //绘制移动小球
+  ///绘制移动小球
   void drawMoveBall(Canvas canvas) {
     final second = dateTime.second;
     final moveBallPaint = Paint()

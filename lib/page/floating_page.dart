@@ -27,15 +27,15 @@ class FloatingState extends State<FloatingPage>
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose();
+    _controller?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
       Scaffold(
-        appBar: customAppBar(
-            title: "悬浮按钮Demo",
+        appBar: CustomAppBar(
+            title: "悬浮按钮",
             onBack: () {
               Navigator.pop(context);
             }),
@@ -77,7 +77,7 @@ class FloatingState extends State<FloatingPage>
         ),
       ),
 
-      //悬浮球
+      ///旋转悬浮球
       FloatingView(
         backEdge: true,
         child: RotationTransition(
@@ -97,6 +97,20 @@ class FloatingState extends State<FloatingPage>
             backgroundImage: NetworkImage(
                 "https://img1.baidu.com/it/u=2196634016,1990933817&fm=26&fmt=auto&gp=0.jpg"),
           ),
+        ),
+      ),
+
+      ///没有定宽高的布局
+      FloatingView(
+        backEdge: false,
+        offsetY: 200,
+        child: Container(
+          padding: EdgeInsets.all(10),
+          decoration:BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.deepOrange,
+          ),
+          child: Text("我是可以移动的哦"),
         ),
       ),
     ]);

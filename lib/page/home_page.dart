@@ -14,7 +14,7 @@ class HomeState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar(
+      appBar: CustomAppBar(
         title: "Flutter学习",
       ),
       body: Center(
@@ -24,7 +24,7 @@ class HomeState extends State<HomePage> {
           children: <Widget>[
             MaterialButton(
               color: Colors.blue,
-              height: 100,
+              height: 50,
               child: Text(
                 "悬浮按钮",
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -36,7 +36,7 @@ class HomeState extends State<HomePage> {
             SizedBox(height: 50),
             MaterialButton(
               color: Colors.blue,
-              height: 100,
+              height: 50,
               child: Text(
                 "钟表",
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -46,6 +46,17 @@ class HomeState extends State<HomePage> {
               },
             ),
             SizedBox(height: 50),
+            MaterialButton(
+              color: Colors.blue,
+              height: 50,
+              child: Text(
+                "尺子",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, RouteHelper.rulerPage);
+              },
+            ),
           ],
         ),
       ),
