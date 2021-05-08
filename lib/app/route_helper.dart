@@ -3,6 +3,7 @@ import 'package:my_flutter/page/clock_page.dart';
 import 'package:my_flutter/page/floating_page.dart';
 import 'package:my_flutter/page/home_page.dart';
 import 'package:my_flutter/page/other/textformfield_page.dart';
+import 'package:my_flutter/page/rose_page.dart';
 import 'package:my_flutter/page/ruler_page.dart';
 
 ///路由管理
@@ -22,6 +23,9 @@ class RouteHelper {
   ///输入框相关
   static const String textFormFieldPage = 'text_from_field';
 
+  ///玫瑰花
+  static const String rosePage = 'rose';
+
   ///路由与页面绑定注册
   static Map<String, WidgetBuilder> routes = {
     homePage: (context) => HomePage(),
@@ -29,5 +33,6 @@ class RouteHelper {
     clockPage: (context) => ClockPage(),
     rulerPage: (context) => RulerPage(),
     textFormFieldPage: (context) => TextFormFieldPage(),
+    rosePage: (context) => RosePage(),
   };
 }

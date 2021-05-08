@@ -57,6 +57,18 @@ class HomeState extends State<HomePage> {
                 Navigator.pushNamed(context, RouteHelper.rulerPage);
               },
             ),
+            SizedBox(height: 50),
+            MaterialButton(
+              color: Colors.blue,
+              height: 50,
+              child: Text(
+                "玫瑰花",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, RouteHelper.rosePage);
+              },
+            ),
           ],
         ),
       ),

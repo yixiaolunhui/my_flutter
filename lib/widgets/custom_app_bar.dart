@@ -13,7 +13,10 @@ class CustomAppBar extends AppBar {
           elevation: 0,
           title: Text(
             title,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           bottom: PreferredSize(
             child: Container(
@@ -21,12 +24,14 @@ class CustomAppBar extends AppBar {
               width: double.infinity,
               height: 3,
             ),
-            preferredSize: Size.fromHeight(10),
           ),
           leading: onBack == null
               ? new Container()
               : new IconButton(
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.black,
+                  ),
                   onPressed: () {
                     onBack();
                   },
