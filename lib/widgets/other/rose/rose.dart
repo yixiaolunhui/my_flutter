@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:my_flutter/widgets/rose/rose_data.dart';
+import 'package:my_flutter/widgets/other/rose/rose_data.dart';
 
 class RoseView extends StatefulWidget {
   @override
