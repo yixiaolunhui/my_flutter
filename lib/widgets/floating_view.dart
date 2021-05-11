@@ -5,8 +5,7 @@ class FloatingView extends StatefulWidget {
   FloatingView({
     Key key,
     @required this.child,
-    this.offsetX = 0,
-    this.offsetY = 0,
+    this.offset = Offset.zero,
     this.backEdge = true,
     this.animTime = 500,
   }) : super(key: key);
@@ -14,11 +13,8 @@ class FloatingView extends StatefulWidget {
   //悬浮Child
   Widget child;
 
-  //偏移量X
-  double offsetX;
-
-  //偏移量Y
-  double offsetY;
+  //初始位置
+  Offset offset;
 
   //是否回归边缘
   bool backEdge;
@@ -61,50 +57,44 @@ class FloatingViewState extends State<FloatingView>
   @override
   void initState() {
     super.initState();
-    offset = Offset(widget.offsetX, widget.offsetY);
     //初始化动画控制器
     controller = new AnimationController(
       duration: Duration(milliseconds: widget.animTime),
       vsync: this,
     );
-
     //Frame绘制完后进行回调，并只会回调一次
     WidgetsBinding.instance.addPostFrameCallback((_) {
       //悬浮宽
       width = floatingKey.currentContext.size.width;
       //悬浮高
       height = floatingKey.currentContext.size.height;
-
       //获取屏幕信息
       final size = MediaQuery.of(context).size;
       //屏幕宽
       screenWidth = size.width;
       //屏幕高
       screenHeight = size.height;
-
       //悬浮位置设置
-      if (widget.offsetX <= 0 && widget.offsetY <= 0) {
-        offset = Offset(screenWidth - width, screenHeight - height - 100);
-      } else {
-        double x = offset.dx;
-        double y = offset.dy;
-        //X轴越界处理
-        if (widget.offsetX <= 0) {
-          x = 0;
-        } else if (widget.offsetX > screenWidth - width) {
-          x = screenWidth - width;
-        }
-
-        //Y轴越界处理
-        if (widget.offsetY <= 0) {
-          y = 0;
-        } else if (widget.offsetY > screenHeight - height) {
-          y = screenHeight - height;
-        }
-        offset = Offset(x, y);
-      }
+      offset = overflow(widget.offset);
       setState(() {});
     });
+  }
+
+  ///越界处理
+  Offset overflow(Offset offset) {
+    if (offset.dx <= 0) {
+      offset = Offset(0, offset.dy);
+    }
+    if (offset.dx >= screenWidth - width) {
+      offset = Offset(screenWidth - width, offset.dy);
+    }
+    if (offset.dy <= 0) {
+      offset = Offset(offset.dx, 0);
+    }
+    if (offset.dy >= screenHeight - height) {
+      offset = Offset(offset.dx, screenHeight - height);
+    }
+    return offset;
   }
 
   @override
@@ -123,28 +113,16 @@ class FloatingViewState extends State<FloatingView>
       behavior: HitTestBehavior.deferToChild,
       //手指接触屏幕并可能开始移动
       onPanDown: (details) {
-        setState(() {});
+        // setState(() {});
       },
       //手指接触屏幕并移动
       onPanUpdate: (DragUpdateDetails details) {
-        offset = offset + details.delta;
-
-        //拖动时越界处理-start
-        if (offset.dx < 0) {
-          offset = Offset(0, offset.dy);
-        }
-        if (offset.dx >= screenWidth - width) {
-          offset = Offset(screenWidth - width, offset.dy);
-        }
-        if (offset.dy < 0) {
-          offset = Offset(offset.dx, 0);
-        }
-        if (offset.dy >= screenHeight - height) {
-          offset = Offset(offset.dx, screenHeight - height);
-        }
-        //拖动时越界处理-end
-
-        setState(() {});
+        setState(() {
+          //更新位置
+          offset = offset + details.delta;
+          //拖动时越界处理
+          offset = overflow(offset);
+        });
       },
       //手指离开屏幕
       onPanEnd: (details) {
@@ -152,17 +130,14 @@ class FloatingViewState extends State<FloatingView>
         if (widget.backEdge) {
           //动画开始位置X
           double oldX = offset.dx;
-
           //抬手时 如悬浮view中心在屏幕左边就回归左边，否则右边
           if (offset.dx <= screenWidth / 2 - width / 2) {
             offset = Offset(0, offset.dy);
           } else {
             offset = Offset(screenWidth - width, offset.dy);
           }
-
           //动画结束位置X
           double newX = offset.dx;
-
           //创建动画
           animation = new Tween(begin: oldX, end: newX).animate(controller)
             ..addListener(() {
@@ -170,7 +145,6 @@ class FloatingViewState extends State<FloatingView>
                 offset = Offset(animation.value, offset.dy);
               });
             });
-
           //执行动画
           controller.reset();
           controller.forward();

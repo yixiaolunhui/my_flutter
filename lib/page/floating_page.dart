@@ -26,8 +26,8 @@ class FloatingState extends State<FloatingPage>
 
   @override
   void dispose() {
-    super.dispose();
     _controller?.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,15 +51,7 @@ class FloatingState extends State<FloatingPage>
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
-                  FloatingManager().showFloating(
-                    context: context,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      radius: 40,
-                      backgroundImage: NetworkImage(
-                          "https://img0.baidu.com/it/u=1176928010,121786090&fm=26&fmt=auto&gp=0.jpg"),
-                    ),
-                  );
+                  showFloating(context);
                 },
               ),
               MaterialButton(
@@ -80,6 +72,10 @@ class FloatingState extends State<FloatingPage>
       ///旋转悬浮球
       FloatingView(
         backEdge: true,
+        offset: Offset(
+          MediaQuery.of(context).size.width,
+          MediaQuery.of(context).size.height * 3 / 4,
+        ),
         child: RotationTransition(
           //设置动画的旋转中心
           alignment: Alignment.center,
@@ -103,10 +99,10 @@ class FloatingState extends State<FloatingPage>
       ///没有定宽高的布局
       FloatingView(
         backEdge: false,
-        offsetY: 200,
+        offset: Offset(0, 200),
         child: Container(
           padding: EdgeInsets.all(10),
-          decoration:BoxDecoration(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.deepOrange,
           ),

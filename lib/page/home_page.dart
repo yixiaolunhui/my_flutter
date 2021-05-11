@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_flutter/app/route_helper.dart';
 import 'package:my_flutter/widgets/custom_app_bar.dart';
+import 'package:my_flutter/widgets/floating_overall_view.dart';
 
 ///主页
 class HomePage extends StatefulWidget {
@@ -62,7 +63,7 @@ class HomeState extends State<HomePage> {
               color: Colors.blue,
               height: 50,
               child: Text(
-                "玫瑰花",
+                "结束",
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               onPressed: () {
@@ -78,5 +79,8 @@ class HomeState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //showFloating(context);
+    });
   }
 }

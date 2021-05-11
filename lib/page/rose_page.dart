@@ -16,7 +16,7 @@ class RoseState extends State<RosePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: "玫瑰花",
+        title: "小红花",
         onBack: () {
           Navigator.pop(context);
         },
