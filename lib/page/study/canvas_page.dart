@@ -53,45 +53,65 @@ class BackgroundCustomPainter extends CustomPainter {
 class CanvasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    //第1个
-    canvas.drawRect(
-        Rect.fromLTRB(0, 0, 50, 50),
-        Paint()
-          ..color = Colors.blue
-          ..style = PaintingStyle.fill
-          ..strokeWidth = 10);
-
-    canvas.save();
-
-    drawXY(canvas);
-    //旋转45
-    canvas.rotate(degToRad(45));
-    drawXY(canvas);
-
-    //第2个
-    canvas.drawRect(
-        Rect.fromLTRB(100, 0, 150, 50),
-        Paint()
-          ..color = Colors.yellow
-          ..style = PaintingStyle.fill
-          ..strokeWidth = 10);
-
-    canvas.restore();
-
-
-    //第3个
-    canvas.drawRect(
-        Rect.fromLTRB(0, 150, 50, 200),
-        Paint()
-          ..color = Colors.red
-          ..style = PaintingStyle.fill
-          ..strokeWidth = 10);
+    // test(canvas);
+    drawNumberTest(canvas);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return this == oldDelegate;
   }
+}
+
+//绘制数字坐标系演示
+void drawNumberTest(Canvas canvas) {
+  double angle = degToRad(360 / 60);
+  drawXY(canvas);
+  canvas.translate(100, 100);
+  for (var i = 0; i < 3; i++) {
+    canvas.save();
+    canvas.translate(0.0, -70);
+    drawXY(canvas);
+    canvas.rotate(-angle * i * 5);
+    drawXY(canvas);
+    canvas.restore();
+    canvas.rotate(angle * 5);
+  }
+}
+
+void test(Canvas canvas) {
+  //第1个
+  canvas.drawRect(
+      Rect.fromLTRB(0, 0, 50, 50),
+      Paint()
+        ..color = Colors.blue
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+
+  canvas.save();
+
+  drawXY(canvas);
+  //旋转45
+  canvas.rotate(degToRad(45));
+  drawXY(canvas);
+
+  //第2个
+  canvas.drawRect(
+      Rect.fromLTRB(100, 0, 150, 50),
+      Paint()
+        ..color = Colors.yellow
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+
+  canvas.restore();
+
+  //第3个
+  canvas.drawRect(
+      Rect.fromLTRB(0, 150, 50, 200),
+      Paint()
+        ..color = Colors.red
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
 }
 
 ///绘制坐标系 X轴  Y轴

@@ -34,7 +34,7 @@ class ClockView extends StatefulWidget {
   //边框的颜色
   final Color borderColor;
 
-  //刻度
+  //刻度的颜色
   final Color scaleColor;
 
   //数字的颜色
@@ -110,11 +110,11 @@ class ClockViewState extends State<ClockView> {
 
   @override
   void dispose() {
-    super.dispose();
     //取消定时器
     if (timer.isActive) {
       timer?.cancel();
     }
+    super.dispose();
   }
 
   @override
@@ -150,7 +150,7 @@ class ClockPainter extends CustomPainter {
   //边框的颜色
   final Color borderColor;
 
-  //刻度
+  //刻度的颜色
   final Color scaleColor;
 
   //数字的颜色
@@ -230,7 +230,31 @@ class ClockPainter extends CustomPainter {
 
   //当前时间
   final DateTime dateTime;
+
+  //边框画笔
+  Paint borderPaint;
+
+  //刻度画笔
+  Paint scalePaint;
+
+  //数字画笔
   TextPainter textPainter;
+
+  //时针画笔
+  Paint hourPaint;
+
+  //分针画笔
+  Paint minutePaint;
+
+  //秒针画笔
+  Paint secondPaint;
+
+  //中间圆画笔
+  Paint centerPaint;
+
+  //移动小球画笔
+  Paint moveBallPaint;
+
   double angle;
 
   ClockPainter(
@@ -254,6 +278,7 @@ class ClockPainter extends CustomPainter {
     this.isDrawMiddleCircle,
     this.isMove,
   }) {
+    //根据自己的审美设置这些画笔的宽度
     borderWidth = 8 * (radius / 100);
     scaleWidth = 2 * (radius / 100);
     numberWidth = 20 * (radius / 100);
@@ -262,13 +287,67 @@ class ClockPainter extends CustomPainter {
     secondHandWidth = 1 * (radius / 100);
     middleCircleWidth = 4 * (radius / 100);
 
-    final secondDistance = radius - borderWidth * 2;
+    //边框画笔
+    borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    //刻度画笔
+    scalePaint = Paint()
+      ..color = numberColor
+      ..strokeWidth = scaleWidth
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round;
+
+    //数字
+    textPainter = TextPainter(
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    //时针画笔
+    hourPaint = Paint()
+      ..color = hourHandColor
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = hourHandWidth;
+
+    //分针画笔
+    minutePaint = Paint()
+      ..color = minuteHandColor
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = minuteHandWidth;
+
+    //秒针画笔
+    secondPaint = Paint()
+      ..color = secondHandColor
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = secondHandWidth;
+
+    //中间圆
+    centerPaint = Paint()
+      ..strokeWidth = middleCircleWidth
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..color = middleCircleColor;
+
+    //移动小球画笔
+    moveBallPaint = Paint()
+      ..strokeWidth = scaleWidth * 2
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..color = moveBallColor;
 
     //计算出 小刻度和大刻度
+    final distance = radius - borderWidth * 2;
     for (var i = 0; i < 60; i++) {
       Offset offset = Offset(
-        cos(degToRad(360 / 60 * i - 90)) * secondDistance + radius,
-        sin(degToRad(360 / 60 * i - 90)) * secondDistance + radius,
+        radius + distance * sin(degToRad(360 / 60 * i)),
+        radius - distance * cos(degToRad(360 / 60 * i)),
       );
       //小刻度
       scaleOffset.add(offset);
@@ -277,11 +356,6 @@ class ClockPainter extends CustomPainter {
         bigScaleOffset.add(offset);
       }
     }
-
-    textPainter = new TextPainter(
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.rtl,
-    );
 
     //每个刻度的弧度
     angle = degToRad(360 / 60);
@@ -338,32 +412,15 @@ class ClockPainter extends CustomPainter {
 
   ///绘制边框
   void drawBorder(Canvas canvas) {
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
     canvas.drawCircle(
-      Offset(radius, radius),
-      radius - borderWidth / 2,
-      borderPaint,
-    );
+        Offset(radius, radius), radius - borderWidth / 2, borderPaint);
   }
 
   ///绘制刻度
   void drawScale(Canvas canvas) {
-    final scalePaint = Paint()
-      ..color = numberColor
-      ..strokeWidth = scaleWidth
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round;
-
     //小刻度
     if (scaleOffset.length > 0) {
-      canvas.drawPoints(
-        PointMode.points,
-        scaleOffset,
-        scalePaint,
-      );
+      canvas.drawPoints(PointMode.points, scaleOffset, scalePaint);
     }
 
     //大刻度
@@ -372,29 +429,27 @@ class ClockPainter extends CustomPainter {
       ..isAntiAlias = true
       ..strokeCap = StrokeCap.round
       ..color = numberColor;
-    canvas.drawPoints(
-      PointMode.points,
-      bigScaleOffset,
-      biggerScalePaint,
-    );
+    canvas.drawPoints(PointMode.points, bigScaleOffset, biggerScalePaint);
   }
 
   ///绘制数字
   void drawNumber(Canvas canvas) {
     canvas.save();
+
+    //移动的圆点（水平向右为正向，竖直向下为正向）
     canvas.translate(radius, radius);
+
     for (var i = 0; i < bigScaleOffset.length; i++) {
       canvas.save();
+      //上移移动到待绘制的地方
       canvas.translate(0.0, -radius + borderWidth * 4);
-      textPainter.text = new TextSpan(
-        text: "${i == 0 ? 12 : i}",
-        style: TextStyle(
-          color: numberColor,
-          fontSize: numberWidth,
-        ),
-      );
       //旋转，确定数字竖直绘制
       canvas.rotate(-angle * i * 5);
+      //设置文字及样式
+      textPainter.text = TextSpan(
+        text: "${i == 0 ? 12 : i}",
+        style: TextStyle(color: numberColor, fontSize: numberWidth),
+      );
       textPainter.layout();
       textPainter.paint(
         canvas,
@@ -404,112 +459,67 @@ class ClockPainter extends CustomPainter {
         ),
       );
       canvas.restore();
+
       canvas.rotate(angle * 5);
     }
-    canvas.restore();
-  }
 
-  ///绘制分针
-  void drawMinute(Canvas canvas) {
-    final minute = dateTime.minute;
-    Offset minuteHand1 = Offset(
-      radius - cos(degToRad(360 / 60 * minute - 90)) * (radius * 0.25),
-      radius - sin(degToRad(360 / 60 * minute - 90)) * (radius * 0.25),
-    );
-    Offset minuteHand2 = Offset(
-      radius +
-          cos(degToRad(360 / 60 * minute - 90)) * (radius - borderWidth * 3),
-      radius +
-          sin(degToRad(360 / 60 * minute - 90)) * (radius - borderWidth * 3),
-    );
-    final minutePaint = Paint()
-      ..color = minuteHandColor
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = minuteHandWidth;
-    canvas.drawLine(
-      minuteHand1,
-      minuteHand2,
-      minutePaint,
-    );
+    canvas.restore();
   }
 
   ///绘制时针
   void drawHour(Canvas canvas) {
     final hour = dateTime.hour;
+    double angle = 360 / 12 * hour;
     Offset hourHand1 = Offset(
-      radius - cos(degToRad(360 / 12 * hour - 90)) * (radius * 0.25),
-      radius - sin(degToRad(360 / 12 * hour - 90)) * (radius * 0.25),
+      radius + (radius * 0.1) * sin(degToRad(angle + 180)),
+      radius - (radius * 0.1) * cos(degToRad(angle + 180)),
     );
     Offset hourHand2 = Offset(
-      radius + cos(degToRad(360 / 12 * hour - 90)) * (radius * 0.45),
-      radius + sin(degToRad(360 / 12 * hour - 90)) * (radius * 0.45),
+      radius + (radius * 0.45) * sin(degToRad(angle)),
+      radius - (radius * 0.45) * cos(degToRad(angle)),
     );
-    final hourPaint = Paint()
-      ..color = hourHandColor
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = hourHandWidth;
-    canvas.drawLine(
-      hourHand1,
-      hourHand2,
-      hourPaint,
+    canvas.drawLine(hourHand1, hourHand2, hourPaint);
+  }
+
+  ///绘制分针
+  void drawMinute(Canvas canvas) {
+    final minute = dateTime.minute;
+    double angle = 360 / 60 * minute;
+    Offset minuteHand1 = Offset(
+      radius + (radius * 0.1) * sin(degToRad(angle + 180)),
+      radius - (radius * 0.1) * cos(degToRad(angle + 180)),
     );
+    Offset minuteHand2 = Offset(
+      radius + (radius * 0.7) * sin(degToRad(angle)),
+      radius - (radius * 0.7) * cos(degToRad(angle)),
+    );
+    canvas.drawLine(minuteHand1, minuteHand2, minutePaint);
   }
 
   ///绘制秒针
   void drawSecond(Canvas canvas) {
     final second = dateTime.second;
+    double angle = 360 / 60 * second;
     Offset secondHand1 = Offset(
-      radius - cos(degToRad(360 / 60 * second - 90)) * (radius * 0.25),
-      radius - sin(degToRad(360 / 60 * second - 90)) * (radius * 0.25),
+      radius + (radius * 0.1) * sin(degToRad(angle + 180)),
+      radius - (radius * 0.1) * cos(degToRad(angle + 180)),
     );
     Offset secondHand2 = Offset(
-      radius +
-          cos(degToRad(360 / 60 * second - 90)) * (radius - borderWidth * 3),
-      radius +
-          sin(degToRad(360 / 60 * second - 90)) * (radius - borderWidth * 3),
+      radius + (radius * 0.7) * sin(degToRad(angle)),
+      radius - (radius * 0.7) * cos(degToRad(angle)),
     );
-    final secondPaint = Paint()
-      ..color = secondHandColor
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = secondHandWidth;
-    canvas.drawLine(
-      secondHand1,
-      secondHand2,
-      secondPaint,
-    );
+    canvas.drawLine(secondHand1, secondHand2, secondPaint);
   }
 
   ///绘制中间圆圈
   void drawMiddleCircle(Canvas canvas) {
-    final centerPaint = Paint()
-      ..strokeWidth = middleCircleWidth
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..color = middleCircleColor;
-    canvas.drawCircle(
-      Offset(radius, radius),
-      middleCircleWidth,
-      centerPaint,
-    );
+    canvas.drawCircle(Offset(radius, radius), middleCircleWidth, centerPaint);
   }
 
   ///绘制移动小球
   void drawMoveBall(Canvas canvas) {
     final second = dateTime.second;
-    final moveBallPaint = Paint()
-      ..strokeWidth = scaleWidth * 2
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..color = moveBallColor;
-    canvas.drawCircle(
-      scaleOffset[second],
-      middleCircleWidth,
-      moveBallPaint,
-    );
+    canvas.drawCircle(scaleOffset[second], middleCircleWidth, moveBallPaint);
   }
 }
 

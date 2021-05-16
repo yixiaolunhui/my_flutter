@@ -80,7 +80,7 @@ class HomeState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      //showFloating(context);
+      showFloating(context);
     });
   }
 }
