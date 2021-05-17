@@ -1,103 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:ui' as ui;
 
 ///自定义尺子
 class RulerView extends StatefulWidget {
-
   //默认值
   final int value;
+
   //最小值
   final int minValue;
+
   //最大值
   final int maxValue;
+
   //步数 一个刻度的值
   final int step;
+
   //尺子的宽度
   final int width;
+
   //尺子的高度
   final int height;
-  //大刻度的总数
-  int perScaleCount;
+
   //每个大刻度的子刻度数
   final int subScaleCountPerScale;
-  //大格的宽度
-  int gridWidth;
+
   //每一刻度的宽度
   final int subScaleWidth;
 
-  int listViewItemCount;
-
+  //左右空白间距宽度
   double paddingItemWidth;
 
+  //刻度尺选择回调
   final void Function(int) onSelectedChanged;
 
-  ///返回标尺刻度所展示的数值字符串
-  String Function(int) scaleTransformer;
-
-  ///刻度颜色
+  //刻度颜色
   final Color scaleColor;
 
-  ///指示器颜色
+  //指示器颜色
   final Color indicatorColor;
 
-  ///刻度文字颜色
+  //刻度文字颜色
   final Color scaleTextColor;
+
+  //刻度文字的大小
+  final double scaleTextWidth;
+
+  //计算总刻度数
+  int totalSubScaleCount;
 
   RulerView({
     Key key,
-    this.value = 500,
-    this.minValue = 100,
-    this.maxValue = 900,
+    this.value = 10,
+    this.minValue = 0,
+    this.maxValue = 100,
     this.step = 1,
     this.width = 200,
     this.height = 60,
     this.subScaleCountPerScale = 10,
     this.subScaleWidth = 8,
     @required this.onSelectedChanged,
-    this.scaleTransformer,
-    this.scaleColor = const Color(0xFFE9E9E9),
-    this.indicatorColor = const Color(0xFF3995FF),
-    this.scaleTextColor = const Color(0xFF8E99A0),
+    this.scaleTextWidth = 15,
+    this.scaleColor = Colors.black,
+    this.indicatorColor = Colors.red,
+    this.scaleTextColor = Colors.black,
   }) : super(key: key) {
-
-    //每个大刻度的子刻度数必须是偶数
-    if (subScaleCountPerScale % 2 != 0) {
-      throw Exception("subScaleCountPerScale必须是偶数");
-    }
-
     //检查最大数-最小数必须是步数的倍数
     if ((maxValue - minValue) % step != 0) {
-      throw Exception("(maxValue - minValue)必须是step的整数倍");
+      throw Exception("(maxValue - minValue)必须是 step 的整数倍");
     }
+    //总刻度数
+    totalSubScaleCount = (maxValue - minValue) ~/ step;
 
-    //计算总刻度数
-    int totalSubScaleCount = (maxValue - minValue) ~/ step;
-
-    //检查总刻度数必须是大刻度的倍数
+    //检查总刻度数必须是大刻度子刻度数的倍数
     if (totalSubScaleCount % subScaleCountPerScale != 0) {
-      throw Exception("(maxValue - minValue)~/step必须是subScaleCountPerScale的整数倍");
+      throw Exception(
+          "(maxValue - minValue)~/step 必须是 subScaleCountPerScale 的整数倍");
     }
-
-
-    //第一个grid和最后一个grid都只会展示一半数量的subGrid，因此perScaleCount需要+1
-    perScaleCount = totalSubScaleCount ~/ subScaleCountPerScale + 1;
-
-    gridWidth = subScaleWidth * subScaleCountPerScale;
-
-    //每个grid都是listView的一个item
-    //除此之外，在第一个grid之前和最后一个grid之后，还需要各填充一个空白item，
-    //这样第一个item和最后一个item才能滚动到屏幕中间。
-    listViewItemCount = perScaleCount + 2;
-
     //空白item的宽度
-    paddingItemWidth = width / 2 - gridWidth / 2;
-
-    if (scaleTransformer == null) {
-      scaleTransformer = (value) {
-        return value.toString();
-      };
-    }
+    paddingItemWidth = width / 2;
   }
 
   @override
@@ -113,12 +93,12 @@ class RulerState extends State<RulerView> {
   void initState() {
     super.initState();
     _scrollController = ScrollController(
-      //计算初始偏移量
-      initialScrollOffset: (widget.value - widget.minValue) /
-          widget.step * widget.subScaleWidth,
+      //初始位置
+      initialScrollOffset:
+          // （（默认值-最小值）/步长 ）=第几个刻度，再乘以每个刻度的宽度就是初始位置
+          (widget.value - widget.minValue) / widget.step * widget.subScaleWidth,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -135,40 +115,27 @@ class RulerState extends State<RulerView> {
               padding: EdgeInsets.all(0),
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
-              itemCount: widget.listViewItemCount,
+              itemCount: 3,
               itemBuilder: (BuildContext context, int index) {
-                //首尾空白元素
-                if (index == 0 || index == widget.listViewItemCount - 1) {
+                //2边的空白控件
+                if (index == 0 || index == 2) {
                   return Container(
                     width: widget.paddingItemWidth,
                     height: 0,
                   );
-                  //普通元素
                 } else {
-                  int type;
-                  //第一个普通元素
-                  if (index == 1) {
-                    type = 0;
-                    //最后一个普通元素
-                  } else if (index == widget.listViewItemCount - 2) {
-                    type = 2;
-                    //中间普通元素
-                  } else {
-                    type = 1;
-                  }
-
+                  //刻度尺
                   return Container(
-                    child: NumberPickerItem(
-                      subGridCount: widget.subScaleCountPerScale,
+                    child: RealRulerView(
+                      subGridCount: widget.totalSubScaleCount,
                       subScaleWidth: widget.subScaleWidth,
-                      itemHeight: widget.height,
-                      valueStr: widget.scaleTransformer(widget.minValue +
-                          (index - 1) *
-                              widget.subScaleCountPerScale *
-                              widget.step),
-                      type: type,
+                      step: widget.step,
+                      minValue: widget.minValue,
+                      height: widget.height,
                       scaleColor: widget.scaleColor,
+                      scaleTextWidth: widget.scaleTextWidth,
                       scaleTextColor: widget.scaleTextColor,
+                      subScaleCountPerScale: widget.subScaleCountPerScale,
                     ),
                   );
                 }
@@ -186,17 +153,18 @@ class RulerState extends State<RulerView> {
     );
   }
 
-  ///监听滚动通知
+  ///监听刻度尺滚动通知
   bool _onNotification(Notification notification) {
+    //ScrollNotification是基类 （ScrollStartNotification/ScrollUpdateNotification/ScrollEndNotification)
     if (notification is ScrollNotification) {
       //距离widget中间最近的刻度值
       int centerValue =
           (notification.metrics.pixels / widget.subScaleWidth).round() *
-              widget.step +
+                  widget.step +
               widget.minValue;
 
       // 通知回调选中值改变了
-      if(widget.onSelectedChanged!=null){
+      if (widget.onSelectedChanged != null) {
         widget.onSelectedChanged(centerValue);
       }
       //若用户手指离开屏幕且列表的滚动停止，则滚动到centerValue
@@ -204,158 +172,190 @@ class RulerState extends State<RulerView> {
         select(centerValue);
       }
     }
-
-    return true; //停止通知冒泡
+    return true; //停止通知
   }
 
   ///判断是否用户手指离开屏幕且列表的滚动停止
   bool _scrollingStopped(
-      Notification notification,
-      ScrollController scrollController,
-      ) {
+    Notification notification,
+    ScrollController scrollController,
+  ) {
     return notification is UserScrollNotification &&
         notification.direction == ScrollDirection.idle &&
-        scrollController.position.activity is! HoldScrollActivity;
+        scrollController.position?.activity is! HoldScrollActivity;
   }
 
-
   ///选中值
-  select(int valueToSelect) {
+  void select(int select) {
     _scrollController.animateTo(
-      (valueToSelect - widget.minValue) / widget.step * widget.subScaleWidth,
+      (select - widget.minValue) / widget.step * widget.subScaleWidth,
       duration: Duration(milliseconds: 200),
       curve: Curves.decelerate,
     );
   }
 }
 
-
-///每个item中间为长刻度，并在下方显示数值。两边都是短刻度
-class NumberPickerItem extends StatelessWidget {
-  final int subGridCount;
-  final int subScaleWidth;
-  final int itemHeight;
-  final String valueStr;
-
-  //0:列表首item 1:中间item 2:尾item
-  final int type;
-
-  final Color scaleColor;
-  final Color scaleTextColor;
-
-  const NumberPickerItem({
+///真实刻度尺View
+class RealRulerView extends StatelessWidget {
+  const RealRulerView({
     Key key,
     @required this.subGridCount,
     @required this.subScaleWidth,
-    @required this.itemHeight,
-    @required this.valueStr,
-    @required this.type,
+    @required this.minValue,
+    @required this.height,
+    @required this.step,
     @required this.scaleColor,
+    @required this.scaleTextWidth,
     @required this.scaleTextColor,
+    @required this.subScaleCountPerScale,
   }) : super(key: key);
+
+  //刻度总数
+  final int subGridCount;
+
+  //每个刻度的宽度
+  final int subScaleWidth;
+
+  //刻度尺的高度
+  final int height;
+
+  //刻度尺最小值
+  final int minValue;
+
+  //每个大刻度的小刻度数
+  final int subScaleCountPerScale;
+
+  //步长 一刻度的值
+  final int step;
+
+  //刻度尺颜色
+  final Color scaleColor;
+
+  //刻度尺宽度
+  final double scaleTextWidth;
+
+  //数字颜色
+  final Color scaleTextColor;
 
   @override
   Widget build(BuildContext context) {
-    double itemWidth = (subScaleWidth * subGridCount).toDouble();
-    double itemHeight = this.itemHeight.toDouble();
-
+    double rulerWidth = (subScaleWidth * subGridCount).toDouble();
+    double rulerHeight = this.height.toDouble();
     return CustomPaint(
-      size: Size(itemWidth, itemHeight),
-      painter: MyPainter(this.subScaleWidth, this.valueStr, this.type,
-          this.scaleColor, this.scaleTextColor),
+      size: Size(rulerWidth, rulerHeight),
+      painter: RulerViewPainter(
+        this.subScaleWidth,
+        this.step,
+        this.minValue,
+        this.scaleColor,
+        this.scaleTextColor,
+        this.scaleTextWidth,
+        this.subScaleCountPerScale,
+      ),
     );
   }
 }
 
-class MyPainter extends CustomPainter {
+class RulerViewPainter extends CustomPainter {
   final int subScaleWidth;
 
-  final String valueStr;
+  final int step;
 
-  //0:列表首item 1:中间item 2:尾item
-  final int type;
+  final int minValue;
 
   final Color scaleColor;
 
   final Color scaleTextColor;
 
-  Paint _linePaint;
+  final double scaleTextWidth;
 
-  double _lineWidth = 2;
+  final int subScaleCountPerScale;
 
-  MyPainter(this.subScaleWidth, this.valueStr, this.type, this.scaleColor,
-      this.scaleTextColor) {
-    _linePaint = Paint()
+  final double lineWidth = 2;
+
+  Paint linePaint;
+
+  TextPainter textPainter;
+
+  RulerViewPainter(
+    this.subScaleWidth,
+    this.step,
+    this.minValue,
+    this.scaleColor,
+    this.scaleTextColor,
+    this.scaleTextWidth,
+    this.subScaleCountPerScale,
+  ) {
+    //刻度尺
+    linePaint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
-      ..strokeWidth = _lineWidth
+      ..strokeWidth = lineWidth
       ..color = scaleColor;
+
+    //数字
+    textPainter = TextPainter(
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
   }
 
   @override
   void paint(Canvas canvas, Size size) {
+    //绘制线
     drawLine(canvas, size);
-    drawText(canvas, size);
+    //绘制数字
+    drawNum(canvas, size);
   }
 
+  ///绘制线
   void drawLine(Canvas canvas, Size size) {
-    double startX, endX;
-    switch (type) {
-      case 0: //首元素只绘制右半部分
-        startX = size.width / 2;
-        endX = size.width;
-        break;
-      case 2: //尾元素只绘制左半部分
-        startX = 0;
-        endX = size.width / 2;
-        break;
-      default: //中间元素全部绘制
-        startX = 0;
-        endX = size.width;
-    }
-
     //绘制横线
-    canvas.drawLine(Offset(startX, 0 + _lineWidth / 2),
-        Offset(endX, 0 + _lineWidth / 2), _linePaint);
-
+    canvas.drawLine(
+      Offset(0, 0 + lineWidth / 2),
+      Offset(size.width, 0 + lineWidth / 2),
+      linePaint,
+    );
+    //第几个小格子
+    int index = 0;
     //绘制竖线
-    for (double x = startX; x <= endX; x += subScaleWidth) {
-      if (x == size.width / 2) {
-        //中间为长刻度
+    for (double x = 0; x <= size.width; x += subScaleWidth) {
+      if (index % subScaleCountPerScale == 0) {
         canvas.drawLine(
-            Offset(x, 0), Offset(x, size.height * 3 / 8), _linePaint);
+            Offset(x, 0), Offset(x, size.height * 3 / 8), linePaint);
       } else {
-        //其他为短刻度
-        canvas.drawLine(Offset(x, 0), Offset(x, size.height / 4), _linePaint);
+        canvas.drawLine(Offset(x, 0), Offset(x, size.height / 4), linePaint);
       }
+      index++;
     }
   }
 
-  void drawText(Canvas canvas, Size size) {
-    //文字水平方向居中对齐，竖直方向底对齐
-    ui.Paragraph p = _buildText(valueStr, size.width);
-    //获得文字的宽高
-    double halfWidth = p.minIntrinsicWidth / 2;
-    double halfHeight = p.height / 2;
-    canvas.drawParagraph(
-        p, Offset(size.width / 2 - halfWidth, size.height - p.height));
-  }
-
-  ui.Paragraph _buildText(String content, double maxWidth) {
-    ui.ParagraphBuilder paragraphBuilder =
-    ui.ParagraphBuilder(ui.ParagraphStyle());
-    paragraphBuilder.pushStyle(
-      ui.TextStyle(
-        fontSize: 14,
-        color: this.scaleTextColor,
-      ),
-    );
-    paragraphBuilder.addText(content);
-
-    ui.Paragraph paragraph = paragraphBuilder.build();
-    paragraph.layout(ui.ParagraphConstraints(width: maxWidth));
-
-    return paragraph;
+  ///绘制数字
+  void drawNum(Canvas canvas, Size size) {
+    canvas.save();
+    //坐标移动（0，0）点
+    canvas.translate(0, 0);
+    //每个大格子的宽度
+    double offsetX = (subScaleWidth * subScaleCountPerScale).toDouble();
+    int index = 0;
+    //绘制数字
+    for (double x = 0; x <= size.width; x += offsetX) {
+      textPainter.text = TextSpan(
+        text: "${minValue + index * step * subScaleCountPerScale}",
+        style: TextStyle(color: scaleColor, fontSize: scaleTextWidth),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        new Offset(
+          -textPainter.width / 2,
+          size.height - textPainter.height,
+        ),
+      );
+      index++;
+      canvas.translate(offsetX, 0);
+    }
+    canvas.restore();
   }
 
   @override
