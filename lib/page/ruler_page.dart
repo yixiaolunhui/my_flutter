@@ -33,15 +33,18 @@ class RulerState extends State<RulerPage> {
             ),
             SizedBox(height: 30),
             RulerView(
+              width: MediaQuery.of(context).size.width.ceil(),
+              height: 60,
+              value: number,
               minValue: 10,
               maxValue: 60,
               step: 2,
+              subScaleWidth: 10,
               subScaleCountPerScale: 5,
-              value: number,
-              width: MediaQuery.of(context).size.width.ceil(),
-              height: 60,
               scaleColor: Colors.black,
+              scaleWidth: 2,
               scaleTextColor: Colors.black,
+              scaleTextWidth: 15,
               onSelectedChanged: (result) {
                 setState(() {
                   number = result;

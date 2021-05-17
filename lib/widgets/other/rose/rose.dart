@@ -23,7 +23,7 @@ class _RoseState extends State<RoseView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     _controller = AnimationController(
-        duration: Duration(seconds: 5), vsync: this)
+        duration: Duration(seconds: 3), vsync: this)
       ..addListener(() {
 
         setState(() {
@@ -190,9 +190,7 @@ class RosePaint extends CustomPainter {
     _drawLeaf2(canvas, size);
   }
 
-  ///
   /// 绘制花骨朵
-  ///
   _drawFlower(Canvas canvas, Size size) {
     //将花变为红色
     if (flowerPaths.length >= RoseData.flowerPoints.length) {

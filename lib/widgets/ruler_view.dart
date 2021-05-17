@@ -180,7 +180,7 @@ class RulerState extends State<RulerView> {
     return true; //停止通知
   }
 
-  ///判断是否用户手指离开屏幕且列表的滚动停止
+  ///判断是否滚动停止
   bool _scrollingStopped(
     Notification notification,
     ScrollController scrollController,
@@ -191,7 +191,7 @@ class RulerState extends State<RulerView> {
         //没有滚动正在进行
         && notification.direction == ScrollDirection.idle
         //手指离开屏幕
-        // && scrollController.position?.activity is! HoldScrollActivity
+        && scrollController.position.activity is! HoldScrollActivity
     ;
   }
 
@@ -358,7 +358,7 @@ class RulerViewPainter extends CustomPainter {
     for (double x = 0; x <= size.width; x += offsetX) {
       textPainter.text = TextSpan(
         text: "${minValue + index * step * subScaleCountPerScale}",
-        style: TextStyle(color: scaleColor, fontSize: scaleTextWidth),
+        style: TextStyle(color: scaleTextColor, fontSize: scaleTextWidth),
       );
       textPainter.layout();
       textPainter.paint(
