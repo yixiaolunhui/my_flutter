@@ -13,31 +13,31 @@ class ClockPage extends StatefulWidget {
 
 class ClockPageState extends State<ClockPage> {
   //是否绘制边框
-  bool isDrawBorder = false;
+  bool isDrawBorder = true;
 
   //是否绘制刻度
-  bool isDrawScale = false;
+  bool isDrawScale = true;
 
   //是否绘制数字
-  bool isDrawNumber = false;
+  bool isDrawNumber = true;
 
   //是否绘制移动小球
   bool isDrawMoveBall = false;
 
   //是否绘制时针
-  bool isDrawHourHand = false;
+  bool isDrawHourHand = true;
 
   //是否绘制分针
-  bool isDrawMinuteHand = false;
+  bool isDrawMinuteHand = true;
 
   //是否绘制秒针
-  bool isDrawSecondHand = false;
+  bool isDrawSecondHand = true;
 
   //是否绘制中间圆圈
-  bool isDrawMiddleCircle = false;
+  bool isDrawMiddleCircle = true;
 
   //是否移动
-  bool isMove = false;
+  bool isMove = true;
 
   @override
   Widget build(BuildContext context) {

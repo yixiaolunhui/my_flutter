@@ -35,8 +35,8 @@ class RulerState extends State<RulerPage> {
             RulerView(
               minValue: 10,
               maxValue: 60,
-              step: 1,
-              subScaleCountPerScale: 10,
+              step: 2,
+              subScaleCountPerScale: 5,
               value: number,
               width: MediaQuery.of(context).size.width.ceil(),
               height: 60,

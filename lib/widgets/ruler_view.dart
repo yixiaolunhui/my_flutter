@@ -45,6 +45,9 @@ class RulerView extends StatefulWidget {
   //刻度文字的大小
   final double scaleTextWidth;
 
+  //刻度线的大小
+  final double scaleWidth;
+
   //计算总刻度数
   int totalSubScaleCount;
 
@@ -58,11 +61,12 @@ class RulerView extends StatefulWidget {
     this.height = 60,
     this.subScaleCountPerScale = 10,
     this.subScaleWidth = 8,
-    @required this.onSelectedChanged,
-    this.scaleTextWidth = 15,
     this.scaleColor = Colors.black,
-    this.indicatorColor = Colors.red,
+    this.scaleWidth = 2,
     this.scaleTextColor = Colors.black,
+    this.scaleTextWidth = 15,
+    this.indicatorColor = Colors.red,
+    @required this.onSelectedChanged,
   }) : super(key: key) {
     //检查最大数-最小数必须是步数的倍数
     if ((maxValue - minValue) % step != 0) {
@@ -133,6 +137,7 @@ class RulerState extends State<RulerView> {
                       minValue: widget.minValue,
                       height: widget.height,
                       scaleColor: widget.scaleColor,
+                      scaleWidth: widget.scaleWidth,
                       scaleTextWidth: widget.scaleTextWidth,
                       scaleTextColor: widget.scaleTextColor,
                       subScaleCountPerScale: widget.subScaleCountPerScale,
@@ -180,9 +185,14 @@ class RulerState extends State<RulerView> {
     Notification notification,
     ScrollController scrollController,
   ) {
-    return notification is UserScrollNotification &&
-        notification.direction == ScrollDirection.idle &&
-        scrollController.position?.activity is! HoldScrollActivity;
+    return
+        //停止滚动
+        notification is UserScrollNotification
+        //没有滚动正在进行
+        && notification.direction == ScrollDirection.idle
+        //手指离开屏幕
+        // && scrollController.position?.activity is! HoldScrollActivity
+    ;
   }
 
   ///选中值
@@ -199,15 +209,16 @@ class RulerState extends State<RulerView> {
 class RealRulerView extends StatelessWidget {
   const RealRulerView({
     Key key,
-    @required this.subGridCount,
-    @required this.subScaleWidth,
-    @required this.minValue,
-    @required this.height,
-    @required this.step,
-    @required this.scaleColor,
-    @required this.scaleTextWidth,
-    @required this.scaleTextColor,
-    @required this.subScaleCountPerScale,
+    this.subGridCount,
+    this.subScaleWidth,
+    this.minValue,
+    this.height,
+    this.step,
+    this.scaleColor,
+    this.scaleWidth,
+    this.scaleTextColor,
+    this.scaleTextWidth,
+    this.subScaleCountPerScale,
   }) : super(key: key);
 
   //刻度总数
@@ -234,6 +245,9 @@ class RealRulerView extends StatelessWidget {
   //刻度尺宽度
   final double scaleTextWidth;
 
+  //刻度线宽度
+  final double scaleWidth;
+
   //数字颜色
   final Color scaleTextColor;
 
@@ -248,6 +262,7 @@ class RealRulerView extends StatelessWidget {
         this.step,
         this.minValue,
         this.scaleColor,
+        this.scaleWidth,
         this.scaleTextColor,
         this.scaleTextWidth,
         this.subScaleCountPerScale,
@@ -271,7 +286,7 @@ class RulerViewPainter extends CustomPainter {
 
   final int subScaleCountPerScale;
 
-  final double lineWidth = 2;
+  final double scaleWidth;
 
   Paint linePaint;
 
@@ -282,6 +297,7 @@ class RulerViewPainter extends CustomPainter {
     this.step,
     this.minValue,
     this.scaleColor,
+    this.scaleWidth,
     this.scaleTextColor,
     this.scaleTextWidth,
     this.subScaleCountPerScale,
@@ -290,7 +306,7 @@ class RulerViewPainter extends CustomPainter {
     linePaint = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
-      ..strokeWidth = lineWidth
+      ..strokeWidth = scaleWidth
       ..color = scaleColor;
 
     //数字
@@ -312,8 +328,8 @@ class RulerViewPainter extends CustomPainter {
   void drawLine(Canvas canvas, Size size) {
     //绘制横线
     canvas.drawLine(
-      Offset(0, 0 + lineWidth / 2),
-      Offset(size.width, 0 + lineWidth / 2),
+      Offset(0, 0 + scaleWidth / 2),
+      Offset(size.width, 0 + scaleWidth / 2),
       linePaint,
     );
     //第几个小格子
