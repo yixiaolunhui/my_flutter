@@ -163,16 +163,17 @@ class RulerState extends State<RulerView> {
     //ScrollNotification是基类 （ScrollStartNotification/ScrollUpdateNotification/ScrollEndNotification)
     if (notification is ScrollNotification) {
       //距离widget中间最近的刻度值
-      int centerValue =
+      int centerValue = widget.minValue +
+          //notification.metrics.pixels水平滚动的偏移量
+          //先计算出滚动偏移量是滚动了多少个刻度，然后取整，在乘以每个刻度的刻度值就是当前选中的值
           (notification.metrics.pixels / widget.subScaleWidth).round() *
-                  widget.step +
-              widget.minValue;
+              widget.step;
 
-      // 通知回调选中值改变了
+      // 选中值回调
       if (widget.onSelectedChanged != null) {
         widget.onSelectedChanged(centerValue);
       }
-      //若用户手指离开屏幕且列表的滚动停止，则滚动到centerValue
+      //如果是否滚动停止，停止则滚动到centerValue
       if (_scrollingStopped(notification, _scrollController)) {
         select(centerValue);
       }
@@ -188,20 +189,19 @@ class RulerState extends State<RulerView> {
     return
         //停止滚动
         notification is UserScrollNotification
-        //没有滚动正在进行
-        && notification.direction == ScrollDirection.idle
-        //手指离开屏幕
-        && scrollController.position.activity is! HoldScrollActivity
-    ;
+            //没有滚动正在进行
+            &&
+            notification.direction == ScrollDirection.idle &&
+            scrollController.position.activity is! HoldScrollActivity;
   }
 
   ///选中值
-  void select(int select) {
-    _scrollController.animateTo(
-      (select - widget.minValue) / widget.step * widget.subScaleWidth,
-      duration: Duration(milliseconds: 200),
-      curve: Curves.decelerate,
-    );
+  void select(int centerValue) {
+    //根据（中间值-最小值）/步长=第几个刻度，然后第几个刻度乘以每个刻度的宽度就是移动的宽度
+    double x =
+        (centerValue - widget.minValue) / widget.step * widget.subScaleWidth;
+    _scrollController.animateTo(x,
+        duration: Duration(milliseconds: 200), curve: Curves.decelerate);
   }
 }
 
