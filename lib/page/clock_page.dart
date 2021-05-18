@@ -37,7 +37,7 @@ class ClockPageState extends State<ClockPage> {
   bool isDrawMiddleCircle = true;
 
   //是否移动
-  bool isMove = true;
+  bool isMove = false;
 
   @override
   Widget build(BuildContext context) {

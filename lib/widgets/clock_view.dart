@@ -343,12 +343,9 @@ class ClockPainter extends CustomPainter {
       ..color = moveBallColor;
 
     //计算出 小刻度和大刻度
-    final distance = radius - borderWidth * 2;
+    final l = radius - borderWidth * 2;
     for (var i = 0; i < 60; i++) {
-      Offset offset = Offset(
-        radius + distance * sin(degToRad(360 / 60 * i)),
-        radius - distance * cos(degToRad(360 / 60 * i)),
-      );
+      Offset offset = pointOffset(radius, l, 360 / 60 * i);
       //小刻度
       scaleOffset.add(offset);
       //大刻度
@@ -364,44 +361,21 @@ class ClockPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     //绘制边框
-    if (isDrawBorder) {
-      drawBorder(canvas);
-    }
-
+    if (isDrawBorder) drawBorder(canvas);
     //绘制刻度
-    if (isDrawScale) {
-      drawScale(canvas);
-    }
-
+    if (isDrawScale) drawScale(canvas);
     //绘制数字
-    if (isDrawNumber) {
-      drawNumber(canvas);
-    }
-
+    if (isDrawNumber) drawNumber(canvas);
     //绘制时针
-    if (isDrawHourHand) {
-      drawHour(canvas);
-    }
-
+    if (isDrawHourHand) drawHour(canvas);
     //绘制分针
-    if (isDrawMinuteHand) {
-      drawMinute(canvas);
-    }
-
+    if (isDrawMinuteHand) drawMinute(canvas);
     //绘制秒针
-    if (isDrawSecondHand) {
-      drawSecond(canvas);
-    }
-
+    if (isDrawSecondHand) drawSecond(canvas);
     //绘制中间圆圈
-    if (isDrawMiddleCircle) {
-      drawMiddleCircle(canvas);
-    }
-
+    if (isDrawMiddleCircle) drawMiddleCircle(canvas);
     //绘制移动小球
-    if (isDrawMoveBall) {
-      drawMoveBall(canvas);
-    }
+    if (isDrawMoveBall) drawMoveBall(canvas);
   }
 
   //判断是否需要重绘
@@ -432,8 +406,27 @@ class ClockPainter extends CustomPainter {
     canvas.drawPoints(PointMode.points, bigScaleOffset, biggerScalePaint);
   }
 
-  ///绘制数字
+  ///绘制数字(第1种)
   void drawNumber(Canvas canvas) {
+    double l = radius - borderWidth * 4;
+    for (var i = 0; i < bigScaleOffset.length; i++) {
+      textPainter.text = TextSpan(
+        text: "${i == 0 ? 12 : i}",
+        style: TextStyle(color: numberColor, fontSize: numberWidth),
+      );
+      Offset offset = pointOffset(radius, l, i * 360 / 12);
+      textPainter.layout();
+      textPainter.paint(
+          canvas,
+          Offset(
+            offset.dx - (textPainter.width / 2),
+            offset.dy - (textPainter.height / 2),
+          ));
+    }
+  }
+
+  ///绘制数字(第2种)
+  void drawNumber2(Canvas canvas) {
     canvas.save();
 
     //移动的圆点（水平向右为正向，竖直向下为正向）
@@ -470,14 +463,8 @@ class ClockPainter extends CustomPainter {
   void drawHour(Canvas canvas) {
     final hour = dateTime.hour;
     double angle = 360 / 12 * hour;
-    Offset hourHand1 = Offset(
-      radius + (radius * 0.1) * sin(degToRad(angle + 180)),
-      radius - (radius * 0.1) * cos(degToRad(angle + 180)),
-    );
-    Offset hourHand2 = Offset(
-      radius + (radius * 0.45) * sin(degToRad(angle)),
-      radius - (radius * 0.45) * cos(degToRad(angle)),
-    );
+    Offset hourHand1 = pointOffset(radius, radius * 0.1, angle + 180);
+    Offset hourHand2 = pointOffset(radius, radius * 0.45, angle);
     canvas.drawLine(hourHand1, hourHand2, hourPaint);
   }
 
@@ -485,14 +472,8 @@ class ClockPainter extends CustomPainter {
   void drawMinute(Canvas canvas) {
     final minute = dateTime.minute;
     double angle = 360 / 60 * minute;
-    Offset minuteHand1 = Offset(
-      radius + (radius * 0.1) * sin(degToRad(angle + 180)),
-      radius - (radius * 0.1) * cos(degToRad(angle + 180)),
-    );
-    Offset minuteHand2 = Offset(
-      radius + (radius * 0.7) * sin(degToRad(angle)),
-      radius - (radius * 0.7) * cos(degToRad(angle)),
-    );
+    Offset minuteHand1 = pointOffset(radius, radius * 0.1, angle + 180);
+    Offset minuteHand2 = pointOffset(radius, radius * 0.7, angle);
     canvas.drawLine(minuteHand1, minuteHand2, minutePaint);
   }
 
@@ -500,14 +481,8 @@ class ClockPainter extends CustomPainter {
   void drawSecond(Canvas canvas) {
     final second = dateTime.second;
     double angle = 360 / 60 * second;
-    Offset secondHand1 = Offset(
-      radius + (radius * 0.1) * sin(degToRad(angle + 180)),
-      radius - (radius * 0.1) * cos(degToRad(angle + 180)),
-    );
-    Offset secondHand2 = Offset(
-      radius + (radius * 0.7) * sin(degToRad(angle)),
-      radius - (radius * 0.7) * cos(degToRad(angle)),
-    );
+    Offset secondHand1 = pointOffset(radius, radius * 0.1, angle + 180);
+    Offset secondHand2 = pointOffset(radius, radius * 0.7, angle);
     canvas.drawLine(secondHand1, secondHand2, secondPaint);
   }
 
@@ -523,5 +498,22 @@ class ClockPainter extends CustomPainter {
   }
 }
 
-//角度转换为弧度
+///创建Paint
+Paint createPaint(Color color, double strokeWidth) {
+  return Paint()
+    ..color = color
+    ..isAntiAlias = true
+    ..strokeCap = StrokeCap.round
+    ..strokeWidth = strokeWidth;
+}
+
+///圆中万能求点公式
+Offset pointOffset(double radius, double l, double angle) {
+  return Offset(
+    radius + l * sin(degToRad(angle)),
+    radius - l * cos(degToRad(angle)),
+  );
+}
+
+///角度转换为弧度
 num degToRad(num deg) => deg * (pi / 180.0);

@@ -53,7 +53,7 @@ class BackgroundCustomPainter extends CustomPainter {
 class CanvasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // test(canvas);
+    // saveAndRestore(canvas);
     drawNumberTest(canvas);
   }
 
@@ -68,10 +68,12 @@ void drawNumberTest(Canvas canvas) {
   double angle = degToRad(360 / 60);
   drawXY(canvas);
   canvas.translate(100, 100);
+  drawXY(canvas);
   for (var i = 0; i < 3; i++) {
     canvas.save();
     canvas.translate(0.0, -70);
     drawXY(canvas);
+    drawText(canvas,"${i+1}");
     canvas.rotate(-angle * i * 5);
     drawXY(canvas);
     canvas.restore();
@@ -79,7 +81,31 @@ void drawNumberTest(Canvas canvas) {
   }
 }
 
-void test(Canvas canvas) {
+
+//绘制文字
+void drawText(Canvas canvas, String num) {
+  final TextPainter textPainter = TextPainter(
+    textAlign: TextAlign.center,
+    textDirection: TextDirection.rtl,
+  );
+
+  textPainter.text = TextSpan(
+    text: "$num",
+    style: TextStyle(color: Colors.white, fontSize: 25),
+  );
+
+  textPainter.layout();
+  textPainter.paint(
+    canvas,
+    Offset(
+      -(textPainter.width / 2),
+      -(textPainter.height / 2),
+    ),
+  );
+}
+
+//canvas.save()/ canvas.restore();
+void saveAndRestore(Canvas canvas) {
   //第1个
   canvas.drawRect(
       Rect.fromLTRB(0, 0, 50, 50),
@@ -91,8 +117,10 @@ void test(Canvas canvas) {
   canvas.save();
 
   drawXY(canvas);
+
   //旋转45
   canvas.rotate(degToRad(45));
+
   drawXY(canvas);
 
   //第2个
@@ -122,7 +150,7 @@ void drawXY(Canvas canvas) {
       Offset(150, 0),
       Paint()
         ..color = Colors.green
-        ..strokeWidth = 4);
+        ..strokeWidth = 1);
 
   //Y轴
   canvas.drawLine(
@@ -130,7 +158,7 @@ void drawXY(Canvas canvas) {
       Offset(0, 150),
       Paint()
         ..color = Colors.red
-        ..strokeWidth = 4);
+        ..strokeWidth = 1);
 }
 
 //角度转换为弧度
