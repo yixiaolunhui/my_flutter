@@ -255,8 +255,6 @@ class ClockPainter extends CustomPainter {
   //移动小球画笔
   Paint moveBallPaint;
 
-  double angle;
-
   ClockPainter(
     this.dateTime, {
     this.radius,
@@ -288,59 +286,25 @@ class ClockPainter extends CustomPainter {
     middleCircleWidth = 4 * (radius / 100);
 
     //边框画笔
-    borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = borderWidth;
-
+    borderPaint =
+        createPaint(borderColor, borderWidth, style: PaintingStyle.stroke);
     //刻度画笔
-    scalePaint = Paint()
-      ..color = numberColor
-      ..strokeWidth = scaleWidth
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round;
-
+    scalePaint = createPaint(numberColor, scaleWidth);
+    //时针画笔
+    hourPaint = createPaint(hourHandColor, hourHandWidth);
+    //分针画笔
+    minutePaint = createPaint(minuteHandColor, minuteHandWidth);
+    //秒针画笔
+    secondPaint = createPaint(secondHandColor, secondHandWidth);
+    //中间圆
+    centerPaint = createPaint(middleCircleColor, middleCircleWidth);
+    //移动小球画笔
+    moveBallPaint = createPaint(moveBallColor, scaleWidth * 2);
     //数字
     textPainter = TextPainter(
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-
-    //时针画笔
-    hourPaint = Paint()
-      ..color = hourHandColor
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = hourHandWidth;
-
-    //分针画笔
-    minutePaint = Paint()
-      ..color = minuteHandColor
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = minuteHandWidth;
-
-    //秒针画笔
-    secondPaint = Paint()
-      ..color = secondHandColor
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = secondHandWidth;
-
-    //中间圆
-    centerPaint = Paint()
-      ..strokeWidth = middleCircleWidth
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..color = middleCircleColor;
-
-    //移动小球画笔
-    moveBallPaint = Paint()
-      ..strokeWidth = scaleWidth * 2
-      ..isAntiAlias = true
-      ..strokeCap = StrokeCap.round
-      ..color = moveBallColor;
 
     //计算出 小刻度和大刻度
     final l = radius - borderWidth * 2;
@@ -353,9 +317,6 @@ class ClockPainter extends CustomPainter {
         bigScaleOffset.add(offset);
       }
     }
-
-    //每个刻度的弧度
-    angle = degToRad(360 / 60);
   }
 
   @override
@@ -432,6 +393,8 @@ class ClockPainter extends CustomPainter {
     //移动的圆点（水平向右为正向，竖直向下为正向）
     canvas.translate(radius, radius);
 
+    //每个刻度角度圆弧
+    double angle = degToRad(360 / 60);
     for (var i = 0; i < bigScaleOffset.length; i++) {
       canvas.save();
       //上移移动到待绘制的地方
@@ -499,10 +462,12 @@ class ClockPainter extends CustomPainter {
 }
 
 ///创建Paint
-Paint createPaint(Color color, double strokeWidth) {
+Paint createPaint(Color color, double strokeWidth,
+    {PaintingStyle style = PaintingStyle.fill}) {
   return Paint()
     ..color = color
     ..isAntiAlias = true
+    ..style = style
     ..strokeCap = StrokeCap.round
     ..strokeWidth = strokeWidth;
 }
