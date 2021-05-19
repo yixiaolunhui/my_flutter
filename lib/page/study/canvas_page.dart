@@ -53,8 +53,8 @@ class BackgroundCustomPainter extends CustomPainter {
 class CanvasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // saveAndRestore(canvas);
-    drawNumberTest(canvas);
+    saveAndRestore(canvas);
+    // drawNumberTest(canvas);
   }
 
   @override
@@ -82,7 +82,7 @@ void drawNumberTest(Canvas canvas) {
 }
 
 
-//绘制文字
+///绘制文字
 void drawText(Canvas canvas, String num) {
   final TextPainter textPainter = TextPainter(
     textAlign: TextAlign.center,
@@ -104,9 +104,9 @@ void drawText(Canvas canvas, String num) {
   );
 }
 
-//canvas.save()/ canvas.restore();
+///canvas.save() / canvas.restore();
 void saveAndRestore(Canvas canvas) {
-  //第1个
+  //第1个方框
   canvas.drawRect(
       Rect.fromLTRB(0, 0, 50, 50),
       Paint()
@@ -114,30 +114,22 @@ void saveAndRestore(Canvas canvas) {
         ..style = PaintingStyle.fill
         ..strokeWidth = 10);
 
-  canvas.save();
-
-  drawXY(canvas);
-
-  //旋转45
-  canvas.rotate(degToRad(45));
-
-  drawXY(canvas);
-
-  //第2个
-  canvas.drawRect(
-      Rect.fromLTRB(100, 0, 150, 50),
-      Paint()
-        ..color = Colors.yellow
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 10);
-
-  canvas.restore();
-
-  //第3个
+  //第3个方框
   canvas.drawRect(
       Rect.fromLTRB(0, 150, 50, 200),
       Paint()
         ..color = Colors.red
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+
+
+
+  canvas.rotate(degToRad(45)); //旋转45
+  //第2个方框
+  canvas.drawRect(
+      Rect.fromLTRB(100, 0, 150, 50),
+      Paint()
+        ..color = Colors.yellow
         ..style = PaintingStyle.fill
         ..strokeWidth = 10);
 }
@@ -150,7 +142,7 @@ void drawXY(Canvas canvas) {
       Offset(150, 0),
       Paint()
         ..color = Colors.green
-        ..strokeWidth = 1);
+        ..strokeWidth = 2);
 
   //Y轴
   canvas.drawLine(
@@ -158,7 +150,7 @@ void drawXY(Canvas canvas) {
       Offset(0, 150),
       Paint()
         ..color = Colors.red
-        ..strokeWidth = 1);
+        ..strokeWidth = 2);
 }
 
 //角度转换为弧度
