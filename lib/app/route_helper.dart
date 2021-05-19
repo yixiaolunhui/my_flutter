@@ -14,7 +14,7 @@ class RouteHelper {
   static const String homePage = 'home';
 
   ///悬浮按钮
-  static const String floatPage = 'floating_btn';
+  static const String floatPage = 'floating';
 
   ///钟表
   static const String clockPage = 'clock';
