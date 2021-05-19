@@ -63,7 +63,7 @@ class CanvasPainter extends CustomPainter {
   }
 }
 
-//绘制数字坐标系演示
+///绘制数字坐标系演示
 void drawNumberTest(Canvas canvas) {
   double angle = degToRad(360 / 60);
   drawXY(canvas);
@@ -73,8 +73,8 @@ void drawNumberTest(Canvas canvas) {
     canvas.save();
     canvas.translate(0.0, -70);
     drawXY(canvas);
+    // canvas.rotate(-angle * i * 5);
     drawText(canvas,"${i+1}");
-    canvas.rotate(-angle * i * 5);
     drawXY(canvas);
     canvas.restore();
     canvas.rotate(angle * 5);
