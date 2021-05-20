@@ -68,7 +68,7 @@ class CanvasPainter extends CustomPainter {
 
 ///canvas.save() / canvas.restore();
 void saveAndRestore(Canvas canvas) {
-  drawXY(canvas);
+
   //第1个方框
   canvas.drawRect(
       Rect.fromLTRB(0, 0, 50, 50),
@@ -77,6 +77,20 @@ void saveAndRestore(Canvas canvas) {
         ..style = PaintingStyle.fill
         ..strokeWidth = 10);
 
+  drawXY(canvas);
+  canvas.save();
+  canvas.rotate(degToRad(45)); //旋转45
+
+  //第2个方框
+  canvas.drawRect(
+      Rect.fromLTRB(100, 0, 150, 50),
+      Paint()
+        ..color = Colors.yellow
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+
+  canvas.restore();
+  drawXY(canvas);
   //第3个方框
   canvas.drawRect(
       Rect.fromLTRB(0, 150, 50, 200),
@@ -86,14 +100,7 @@ void saveAndRestore(Canvas canvas) {
         ..strokeWidth = 10);
 
 
-  canvas.rotate(degToRad(45)); //旋转45
-  //第2个方框
-  canvas.drawRect(
-      Rect.fromLTRB(100, 0, 150, 50),
-      Paint()
-        ..color = Colors.yellow
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 10);
+
 }
 
 

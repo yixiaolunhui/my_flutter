@@ -92,7 +92,7 @@ class FloatingViewState extends State<FloatingView>
   /// 全局悬浮控件
   Widget _floatingWindow() {
     return GestureDetector(
-      // HitTestBehavior.translucentHitTestBehavior.opaque 自己处理事件
+      // HitTestBehavior.translucent   HitTestBehavior.opaque 自己处理事件
       // HitTestBehavior.deferToChild child处理事件
       // HitTestBehavior.translucent 自己和child都可以接收事件
       behavior: HitTestBehavior.deferToChild,

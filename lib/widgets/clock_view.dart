@@ -425,7 +425,7 @@ class ClockPainter extends CustomPainter {
   ///绘制时针
   void drawHour(Canvas canvas) {
     final hour = dateTime.hour;
-    double angle = 360 / 12 * hour;
+    double angle = 360 / 12 * hour + dateTime.minute / 60 * 30;
     Offset hourHand1 = pointOffset(radius, radius * 0.1, angle + 180);
     Offset hourHand2 = pointOffset(radius, radius * 0.45, angle);
     canvas.drawLine(hourHand1, hourHand2, hourPaint);
@@ -434,7 +434,7 @@ class ClockPainter extends CustomPainter {
   ///绘制分针
   void drawMinute(Canvas canvas) {
     final minute = dateTime.minute;
-    double angle = 360 / 60 * minute;
+    double angle = 360 / 60 * minute + dateTime.second / 60 * 6;
     Offset minuteHand1 = pointOffset(radius, radius * 0.1, angle + 180);
     Offset minuteHand2 = pointOffset(radius, radius * 0.7, angle);
     canvas.drawLine(minuteHand1, minuteHand2, minutePaint);
