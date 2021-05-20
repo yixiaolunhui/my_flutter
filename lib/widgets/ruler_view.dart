@@ -72,6 +72,11 @@ class RulerView extends StatefulWidget {
     if ((maxValue - minValue) % step != 0) {
       throw Exception("(maxValue - minValue)必须是 step 的整数倍");
     }
+    //默认值 不能低于最小值 或者大于最大值
+    if (value < minValue || value > maxValue) {
+      throw Exception(
+          "value 必须在minValue和maxValue范围内（minValue<=value<=maxValue）");
+    }
     //总刻度数
     totalSubScaleCount = (maxValue - minValue) ~/ step;
 
@@ -162,6 +167,7 @@ class RulerState extends State<RulerView> {
   bool _onNotification(Notification notification) {
     //ScrollNotification是基类 （ScrollStartNotification/ScrollUpdateNotification/ScrollEndNotification)
     if (notification is ScrollNotification) {
+      print("-------metrics.pixels-------${notification.metrics.pixels}");
       //距离widget中间最近的刻度值
       int centerValue = widget.minValue +
           //notification.metrics.pixels水平滚动的偏移量

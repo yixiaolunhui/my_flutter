@@ -11,7 +11,7 @@ class RulerPage extends StatefulWidget {
 }
 
 class RulerState extends State<RulerPage> {
-  int number = 30;
+  int number = 50;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class RulerState extends State<RulerPage> {
               width: MediaQuery.of(context).size.width.ceil(),
               height: 60,
               value: number,
-              minValue: 0,
+              minValue: 40,
               maxValue: 100,
               step: 2,
               subScaleWidth: 10,

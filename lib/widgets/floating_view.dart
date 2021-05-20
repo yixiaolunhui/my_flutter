@@ -5,7 +5,7 @@ class FloatingView extends StatefulWidget {
   FloatingView({
     Key key,
     @required this.child,
-    this.offset = Offset.zero,
+    this.offset = Offset.infinite,
     this.backEdge = true,
     this.animTime = 500,
   }) : super(key: key);
@@ -80,23 +80,6 @@ class FloatingViewState extends State<FloatingView>
     });
   }
 
-  ///越界处理
-  Offset overflow(Offset offset) {
-    if (offset.dx <= 0) {
-      offset = Offset(0, offset.dy);
-    }
-    if (offset.dx >= screenWidth - width) {
-      offset = Offset(screenWidth - width, offset.dy);
-    }
-    if (offset.dy <= 0) {
-      offset = Offset(offset.dx, 0);
-    }
-    if (offset.dy >= screenHeight - height) {
-      offset = Offset(offset.dx, screenHeight - height);
-    }
-    return offset;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -109,11 +92,12 @@ class FloatingViewState extends State<FloatingView>
   /// 全局悬浮控件
   Widget _floatingWindow() {
     return GestureDetector(
-      //deferToChild:child处理事件
+      // HitTestBehavior.translucentHitTestBehavior.opaque 自己处理事件
+      // HitTestBehavior.deferToChild child处理事件
+      // HitTestBehavior.translucent 自己和child都可以接收事件
       behavior: HitTestBehavior.deferToChild,
       //手指接触屏幕并可能开始移动
       onPanDown: (details) {
-        // setState(() {});
       },
       //手指接触屏幕并移动
       onPanUpdate: (DragUpdateDetails details) {
@@ -157,6 +141,26 @@ class FloatingViewState extends State<FloatingView>
       ),
     );
   }
+
+
+
+  ///越界处理
+  Offset overflow(Offset offset) {
+    if (offset.dx <= 0) {
+      offset = Offset(0, offset.dy);
+    }
+    if (offset.dx >= screenWidth - width) {
+      offset = Offset(screenWidth - width, offset.dy);
+    }
+    if (offset.dy <= 0) {
+      offset = Offset(offset.dx, 0);
+    }
+    if (offset.dy >= screenHeight - height) {
+      offset = Offset(offset.dx, screenHeight - height);
+    }
+    return offset;
+  }
+
 
   @override
   void dispose() {

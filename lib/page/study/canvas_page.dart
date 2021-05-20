@@ -33,6 +33,7 @@ class CanvasPageState extends State<CanvasPage> {
   }
 }
 
+//绘制背景
 class BackgroundCustomPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -46,7 +47,7 @@ class BackgroundCustomPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return this == oldDelegate;
+    return false;
   }
 }
 
@@ -62,6 +63,42 @@ class CanvasPainter extends CustomPainter {
     return this == oldDelegate;
   }
 }
+
+
+
+///canvas.save() / canvas.restore();
+void saveAndRestore(Canvas canvas) {
+  drawXY(canvas);
+  //第1个方框
+  canvas.drawRect(
+      Rect.fromLTRB(0, 0, 50, 50),
+      Paint()
+        ..color = Colors.blue
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+
+  //第3个方框
+  canvas.drawRect(
+      Rect.fromLTRB(0, 150, 50, 200),
+      Paint()
+        ..color = Colors.red
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+
+
+  canvas.rotate(degToRad(45)); //旋转45
+  //第2个方框
+  canvas.drawRect(
+      Rect.fromLTRB(100, 0, 150, 50),
+      Paint()
+        ..color = Colors.yellow
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 10);
+}
+
+
+
+
 
 ///绘制数字坐标系演示
 void drawNumberTest(Canvas canvas) {
@@ -104,42 +141,17 @@ void drawText(Canvas canvas, String num) {
   );
 }
 
-///canvas.save() / canvas.restore();
-void saveAndRestore(Canvas canvas) {
-  //第1个方框
-  canvas.drawRect(
-      Rect.fromLTRB(0, 0, 50, 50),
-      Paint()
-        ..color = Colors.blue
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 10);
-
-  //第3个方框
-  canvas.drawRect(
-      Rect.fromLTRB(0, 150, 50, 200),
-      Paint()
-        ..color = Colors.red
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 10);
 
 
 
-  canvas.rotate(degToRad(45)); //旋转45
-  //第2个方框
-  canvas.drawRect(
-      Rect.fromLTRB(100, 0, 150, 50),
-      Paint()
-        ..color = Colors.yellow
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 10);
-}
+
 
 ///绘制坐标系 X轴  Y轴
 void drawXY(Canvas canvas) {
   //X轴
   canvas.drawLine(
       Offset(0, 0),
-      Offset(150, 0),
+      Offset(250, 0),
       Paint()
         ..color = Colors.green
         ..strokeWidth = 2);
@@ -147,7 +159,7 @@ void drawXY(Canvas canvas) {
   //Y轴
   canvas.drawLine(
       Offset(0, 0),
-      Offset(0, 150),
+      Offset(0, 250),
       Paint()
         ..color = Colors.red
         ..strokeWidth = 2);
