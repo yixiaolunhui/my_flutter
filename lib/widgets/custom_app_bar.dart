@@ -18,13 +18,13 @@ class CustomAppBar extends AppBar {
               fontWeight: FontWeight.bold,
             ),
           ),
-          bottom: PreferredSize(
-            child: Container(
-              color: Colors.red,
-              width: double.infinity,
-              height: 3,
-            ),
-          ),
+          // bottom: PreferredSize(
+          //   child: Container(
+          //     color: Colors.red,
+          //     width: double.infinity,
+          //     height: 3,
+          //   ),
+          // ),
           leading: onBack == null
               ? new Container()
               : new IconButton(
