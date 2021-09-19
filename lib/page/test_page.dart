@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class TestPage extends StatefulWidget {
+class TranslucentPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return TestState();
+    return TranslucentState();
   }
 }
 
-class TestState extends State<TestPage> {
+class TranslucentState extends State<TranslucentPage> {
   @override
   Widget build(BuildContext context) {
     return Center(

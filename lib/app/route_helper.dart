@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_flutter/page/carousel_page.dart';
 import 'package:my_flutter/page/clock_page.dart';
 import 'package:my_flutter/page/floating_page.dart';
 import 'package:my_flutter/page/home_page.dart';
@@ -34,7 +35,12 @@ class RouteHelper {
 
   ///Canvas
   static const String canvasPage = 'canvas';
-  static const String testPage = 'test';
+
+  ///半透明Widget
+  static const String translucentPage = 'translucent';
+
+  ///旋转木马
+  static const String carouselPage = 'carousel';
 
   ///路由与页面绑定注册
   static Map<String, WidgetBuilder> routes = {
@@ -46,6 +52,7 @@ class RouteHelper {
     rosePage: (context) => RosePage(),
     studyPage: (context) => StudyPage(),
     canvasPage: (context) => CanvasPage(),
-    testPage: (context) => TestPage(),
+    translucentPage: (context) => TranslucentPage(),
+    carouselPage: (context) => CarouselPage(),
   };
 }

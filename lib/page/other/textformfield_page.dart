@@ -63,6 +63,12 @@ class TextFormFieldState extends State<TextFormFieldPage> {
                 BlacklistingTextInputFormatter(RegExp("[dalong]"))
               ],
             ),
+            InputTitleValue(
+              title: "输入空格 中文逗号 英文逗号 数字",
+              textInputFormatter: [
+                FilteringTextInputFormatter.allow(RegExp("[，]|[,]|[0-9]|[ ]")),
+              ],
+            ),
           ],
         ),
       ),

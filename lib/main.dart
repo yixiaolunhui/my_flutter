@@ -33,19 +33,19 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           canvasColor: Color(0xffF5F6F9),
         ),
-        // routes: RouteHelper.routes,
+        routes: RouteHelper.routes,
         navigatorObservers: [routeObserver],
         home: HomePage(),
-        onGenerateRoute: (RouteSettings settings) {
-          return CupertinoPageRoute(
-              settings: settings,
-              builder: (BuildContext context){
-                //这里可以拦截做一些事情
-                print("--------name=----${settings.name}");
-               return RouteHelper?.routes[settings.name](context);
-              }
-          );
-        }
+        // onGenerateRoute: (RouteSettings settings) {
+        //   return CupertinoPageRoute(
+        //       settings: settings,
+        //       builder: (BuildContext context){
+        //         //这里可以拦截做一些事情
+        //         print("--------name=----${settings.name}");
+        //        return RouteHelper?.routes[settings.name](context);
+        //       }
+        //   );
+        // }
     );
   }
 }
