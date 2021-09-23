@@ -72,49 +72,58 @@ class CarouselState extends State<CarouselPage> {
               left: 0,
               right: 0,
               top: 0,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(" Y轴旋转："),
-                      Expanded(
-                        child: Slider(
-                          value: this.value,
-                          onChanged: (result) {
-                            this.value = result;
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(" Y轴旋转："),
+                        Expanded(
+                          child: Slider(
+                            value: this.value,
+                            onChanged: (result) {
+                              this.value = result;
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(" 缩放比例："),
+                        Expanded(
+                          child: Slider(
+                            value: this.scale,
+                            onChanged: (result) {
+                              this.scale = result;
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(" 自动旋转："),
+                        Switch(
+                          value: isAuto,
+                          onChanged: (value) {
+                            this.isAuto = value;
                             if (mounted) {
                               setState(() {});
                             }
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(" 缩放比例："),
-                      Expanded(
-                        child: Slider(
-                          value: this.scale,
-                          onChanged: (result) {
-                            this.scale = result;
-                            if (mounted) {
-                              setState(() {});
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  Switch(
-                      value: isAuto,
-                      onChanged: (value) {
-                        this.isAuto = value;
-                        if (mounted) {
-                          setState(() {});
-                        }
-                      }),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
