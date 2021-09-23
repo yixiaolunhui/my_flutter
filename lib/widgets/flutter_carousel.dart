@@ -269,6 +269,8 @@ class CarouselState extends State<CarouselLayout>
     // if (l1 <= 0) {
     //   angle += 180;
     // }
+
+    //
     print("------ l1=$l1   l2=$l2   radian=$radian  angle=$angle ");
 
     double offset = 2;
