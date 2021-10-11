@@ -44,7 +44,7 @@ class CarouselLayout extends StatefulWidget {
 
 class CarouselState extends State<CarouselLayout>
     with TickerProviderStateMixin {
-  List<Point> currentList = [];
+  List<Point> childPointList = [];
 
   //滑动系数
   final slipRatio = 0.5;
@@ -146,11 +146,9 @@ class CarouselState extends State<CarouselLayout>
   }
 
   ///子控件集
-  _childList({Size size = Size.zero}) {
-    //所有的子布局
-    List<Widget> childList = [];
+  List<Point> _childPointList({Size size = Size.zero}) {
     //清空之前的数据
-    currentList?.clear();
+    childPointList?.clear();
     if (this.widget.children?.isNotEmpty ?? false) {
       //子控件数量
       int count = this.widget.children.length;
@@ -167,37 +165,23 @@ class CarouselState extends State<CarouselLayout>
             radius * sinValue * sin(pi / (1 + this.widget.deviationRatio));
         var minScale = min(this.widget.minScale, 0.99);
         var scale = ((1 - minScale) / 2 * (1 - sin(angle)) + minScale);
-        var child = Positioned(
-          width: this.widget.childWidth * scale,
-          height: this.widget.childHeight * scale,
-          left: coordinateX - this.widget.childWidth * scale / 2,
-          top: coordinateY - this.widget.childHeight * scale / 2,
-          child: GestureDetector(
-            child: this.widget.children[i],
-            onTap: () {},
-          ),
-        );
-        currentList.add(Point(
-          i,
-          coordinateX,
-          coordinateY,
+        childPointList.add(Point(
+          this.widget.childWidth * scale,
+          this.widget.childHeight * scale,
           coordinateX - this.widget.childWidth * scale / 2,
           coordinateY - this.widget.childHeight * scale / 2,
           coordinateX + this.widget.childWidth * scale / 2,
           coordinateY + this.widget.childHeight * scale / 2,
           scale,
-          child,
           angle,
+          i,
         ));
       }
-      currentList.sort((a, b) {
+      childPointList.sort((a, b) {
         return a.scale.compareTo(b.scale);
       });
-      currentList.forEach((item) {
-        childList.add(item.child);
-      });
     }
-    return childList;
+    return childPointList;
   }
 
   @override
@@ -239,11 +223,21 @@ class CarouselState extends State<CarouselLayout>
         onHorizontalDragCancel: () {
           _startRotateTimer();
         },
-        behavior:HitTestBehavior.opaque,
+        behavior: HitTestBehavior.opaque,
         child: CustomPaint(
           size: constraints.biggest,
           child: Stack(
-            children: _childList(size: constraints.biggest),
+            children: _childPointList(size: size).map(
+              (Point point) {
+                return Positioned(
+                  width: point.width,
+                  height: point.height,
+                  left: point.left,
+                  top: point.top,
+                  child: this.widget.children[point.index],
+                );
+              },
+            ).toList(),
           ),
         ),
       );
@@ -255,53 +249,42 @@ class CarouselState extends State<CarouselLayout>
   }
 }
 
-
 class Point {
   Point(
-    this.index,
-    this.x,
-    this.y,
+    this.width,
+    this.height,
     this.left,
     this.top,
     this.right,
     this.bottom,
     this.scale,
-    this.child,
     this.angle,
+    this.index,
   );
 
-  double x;
-  double y;
+  double width;
+  double height;
   double left;
   double top;
   double right;
   double bottom;
   double scale;
-  int index;
-  Widget child;
   double angle;
+  int index;
 
   @override
   String toString() {
     StringBuffer valueBuffer = new StringBuffer();
     valueBuffer
-      ..write("x=$x ")
-      ..write("y=$y ")
+      ..write("width=$width ")
+      ..write("height=$height ")
       ..write("left=$left ")
       ..write("top=$top ")
       ..write("right=$right ")
       ..write("bottom=$bottom ")
       ..write("scale=$scale ")
-      ..write("index=$index ")
-      ..write("angle=$angle ");
+      ..write("angle=$angle ")
+      ..write("index=$index ");
     return valueBuffer.toString();
   }
-}
-class LoopViewWidget extends AnimatedWidget{
-  @override
-  Widget build(BuildContext context) {
-    throw UnimplementedError();
-  }
-
-
 }

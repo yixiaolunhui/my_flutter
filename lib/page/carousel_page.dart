@@ -35,36 +35,47 @@ class CarouselState extends State<CarouselPage> {
               children: [
                 Image(
                   image: ImageUtils.getAssetImage("boy"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("caishen"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("damo"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("girl"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("hongbao"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("laotou"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("linghongbao"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("mengnan"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("yang"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("yangmao"),
+                  filterQuality: FilterQuality.high,
                 ),
                 Image(
                   image: ImageUtils.getAssetImage("zhaocaimao"),
+                  filterQuality: FilterQuality.high,
                 ),
               ],
             ),
