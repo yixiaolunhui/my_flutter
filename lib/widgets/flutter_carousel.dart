@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter/utils/carousel_util.dart';
 
 ///选择木马布局
 class CarouselLayout extends StatefulWidget {
@@ -69,7 +68,7 @@ class CarouselState extends State<CarouselLayout>
 
   Timer _rotateTimer;
 
-  AnimationController controller;
+  AnimationController _controller;
 
   AnimationController moveController;
 
@@ -77,16 +76,10 @@ class CarouselState extends State<CarouselLayout>
 
   double velocityX;
 
-  Timer _timer;
-
   @override
   void didUpdateWidget(covariant CarouselLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (this.widget.isAuto) {
-      _startRotateTimer();
-    } else {
-      _cancelRotateTimer();
-    }
+    _startRotateTimer();
   }
 
   @override
@@ -95,39 +88,31 @@ class CarouselState extends State<CarouselLayout>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (mounted)
         setState(() {
-          if (this.widget.isAuto) {
-            _startRotateTimer();
-          }
+          _startRotateTimer();
         });
     });
 
-    controller = AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
+
     animation = CurvedAnimation(
-      parent: controller,
+      parent: _controller,
       curve: Curves.easeIn,
     );
+
     animation = new Tween<double>(begin: 1, end: 0).animate(animation)
       ..addListener(() {
         //当前速度
         var velocity = animation.value * -velocityX;
-        var offsetX = (velocity * 5) / (2 * pi * radius);
+        var offsetX = velocity * 5 / (2 * pi * radius);
         rotateAngle += offsetX;
         setState(() => {});
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          if (this.widget.isAuto) {
-            _startRotateTimer();
-          } else {
-            // currentList.sort((a, b) {
-            //   return b.y.compareTo(a.y);
-            // });
-            // moveToIndex(
-            //     currentList[0].x, currentList[0].y, currentList[0].scale);
-          }
+          _startRotateTimer();
         }
       });
   }
@@ -136,11 +121,15 @@ class CarouselState extends State<CarouselLayout>
   void dispose() {
     super.dispose();
     _cancelRotateTimer();
-    controller?.dispose();
+    _controller?.dispose();
   }
 
   ///开始自动旋转计时器
   _startRotateTimer() {
+    _cancelRotateTimer();
+    if (!this.widget.isAuto) {
+      return;
+    }
     if (_rotateTimer == null) {
       _rotateTimer = new Timer.periodic(new Duration(milliseconds: 5), (timer) {
         rotateAngle += this.widget.autoSweepAngle;
@@ -178,9 +167,6 @@ class CarouselState extends State<CarouselLayout>
             radius * sinValue * sin(pi / (1 + this.widget.deviationRatio));
         var minScale = min(this.widget.minScale, 0.99);
         var scale = ((1 - minScale) / 2 * (1 - sin(angle)) + minScale);
-
-        var scaleY = coordinateY / (size.height / 2 - radius * sinValue);
-
         var child = Positioned(
           width: this.widget.childWidth * scale,
           height: this.widget.childHeight * scale,
@@ -188,9 +174,7 @@ class CarouselState extends State<CarouselLayout>
           top: coordinateY - this.widget.childHeight * scale / 2,
           child: GestureDetector(
             child: this.widget.children[i],
-            onTap: () {
-              moveToIndex(coordinateX, coordinateY, angle, scale, scaleY);
-            },
+            onTap: () {},
           ),
         );
         currentList.add(Point(
@@ -224,11 +208,14 @@ class CarouselState extends State<CarouselLayout>
     ) {
       size = constraints.biggest;
       return GestureDetector(
+        ///滑动按下
+        onHorizontalDragDown: (DragDownDetails details) {
+          _cancelRotateTimer(); //取消自动移动
+          _controller?.stop();
+        },
+
         ///滑动开始
         onHorizontalDragStart: (DragStartDetails details) {
-          //取消自动移动定时器
-          _cancelRotateTimer();
-          controller?.stop();
           downAngle = rotateAngle;
           downX = details.globalPosition.dx;
         },
@@ -244,11 +231,20 @@ class CarouselState extends State<CarouselLayout>
         onHorizontalDragEnd: (DragEndDetails details) {
           //每秒像素x数
           velocityX = details.velocity.pixelsPerSecond.dx;
-          controller.reset();
-          controller.forward();
+          _controller.reset();
+          _controller.forward();
         },
-        child: Stack(
-          children: _childList(size: constraints.biggest),
+
+        ///滑动取消
+        onHorizontalDragCancel: () {
+          _startRotateTimer();
+        },
+        behavior:HitTestBehavior.opaque,
+        child: CustomPaint(
+          size: constraints.biggest,
+          child: Stack(
+            children: _childList(size: constraints.biggest),
+          ),
         ),
       );
     });
@@ -257,62 +253,8 @@ class CarouselState extends State<CarouselLayout>
   double xToAngle(double offsetX) {
     return offsetX * slipRatio;
   }
-
-  ///移动到指定的index子控件到最前端
-  void moveToIndex(
-      double x, double y, double childAngle, double scale, double scaleY) {
-    var l1 = y - size.height / 2;
-    var l2 = size.width / 2 - x;
-    var radian = atan(l2 / l1);
-    var angle = -CarouselUtil.radianToAngle(radian);
-    if (l1 >= 0) {
-      if (angle >= 90) {
-        angle -= 180;
-      }
-    } else {
-      if (angle >= 0) {
-        angle -= 180;
-      } else {
-        angle += 180;
-      }
-    }
-    angle = angle * scaleY;
-    //
-    print("------ l1=$l1   l2=$l2   radian=$radian  angle=$angle ");
-
-    double offset = 3;
-    double cacheValue = 0;
-    const oneSec = const Duration(milliseconds: 16);
-    var callback = (timer) {
-      cacheValue += offset;
-      if (cacheValue <= angle.abs()) {
-        if (angle >= 0) {
-          rotateAngle += offset;
-        } else {
-          rotateAngle -= offset;
-        }
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        _timer.cancel();
-      }
-    };
-    _timer = Timer.periodic(oneSec, callback);
-    // moveController = AnimationController(
-    //   vsync: this,
-    //   duration: Duration(milliseconds: 500),
-    // );
-    // moveController.addListener(() {
-    //   rotateAngle += angle*moveController.value;
-    //   if (mounted) {
-    //     setState(() {});
-    //   }
-    // });
-    // moveController.reset();
-    // moveController.forward();
-  }
 }
+
 
 class Point {
   Point(
@@ -345,9 +287,21 @@ class Point {
     valueBuffer
       ..write("x=$x ")
       ..write("y=$y ")
+      ..write("left=$left ")
+      ..write("top=$top ")
+      ..write("right=$right ")
+      ..write("bottom=$bottom ")
       ..write("scale=$scale ")
       ..write("index=$index ")
       ..write("angle=$angle ");
     return valueBuffer.toString();
   }
+}
+class LoopViewWidget extends AnimatedWidget{
+  @override
+  Widget build(BuildContext context) {
+    throw UnimplementedError();
+  }
+
+
 }
