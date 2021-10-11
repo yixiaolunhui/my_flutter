@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:my_flutter/utils/carousel_util.dart';
 
 ///选择木马布局
@@ -121,11 +122,11 @@ class CarouselState extends State<CarouselLayout>
           if (this.widget.isAuto) {
             _startRotateTimer();
           } else {
-            currentList.sort((a, b) {
-              return b.y.compareTo(a.y);
-            });
-            moveToIndex(
-                currentList[0].x, currentList[0].y, currentList[0].scale);
+            // currentList.sort((a, b) {
+            //   return b.y.compareTo(a.y);
+            // });
+            // moveToIndex(
+            //     currentList[0].x, currentList[0].y, currentList[0].scale);
           }
         }
       });
@@ -178,6 +179,8 @@ class CarouselState extends State<CarouselLayout>
         var minScale = min(this.widget.minScale, 0.99);
         var scale = ((1 - minScale) / 2 * (1 - sin(angle)) + minScale);
 
+        var scaleY = coordinateY / (size.height / 2 - radius * sinValue);
+
         var child = Positioned(
           width: this.widget.childWidth * scale,
           height: this.widget.childHeight * scale,
@@ -186,7 +189,7 @@ class CarouselState extends State<CarouselLayout>
           child: GestureDetector(
             child: this.widget.children[i],
             onTap: () {
-              moveToIndex(coordinateX, coordinateY, scale);
+              moveToIndex(coordinateX, coordinateY, angle, scale, scaleY);
             },
           ),
         );
@@ -203,7 +206,6 @@ class CarouselState extends State<CarouselLayout>
           angle,
         ));
       }
-      //第二种
       currentList.sort((a, b) {
         return a.scale.compareTo(b.scale);
       });
@@ -245,12 +247,8 @@ class CarouselState extends State<CarouselLayout>
           controller.reset();
           controller.forward();
         },
-        child: CustomPaint(
-          size: constraints.biggest,
-          painter: CarouselPainter(),
-          child: Stack(
-            children: _childList(size: constraints.biggest),
-          ),
+        child: Stack(
+          children: _childList(size: constraints.biggest),
         ),
       );
     });
@@ -261,34 +259,46 @@ class CarouselState extends State<CarouselLayout>
   }
 
   ///移动到指定的index子控件到最前端
-  void moveToIndex(double x, double y, double scale) {
+  void moveToIndex(
+      double x, double y, double childAngle, double scale, double scaleY) {
     var l1 = y - size.height / 2;
     var l2 = size.width / 2 - x;
     var radian = atan(l2 / l1);
     var angle = -CarouselUtil.radianToAngle(radian);
-    // if (l1 <= 0) {
-    //   angle += 180;
-    // }
-
+    if (l1 >= 0) {
+      if (angle >= 90) {
+        angle -= 180;
+      }
+    } else {
+      if (angle >= 0) {
+        angle -= 180;
+      } else {
+        angle += 180;
+      }
+    }
+    angle = angle * scaleY;
     //
     print("------ l1=$l1   l2=$l2   radian=$radian  angle=$angle ");
 
-    double offset = 2;
-    double cacheValue=0;
-    const oneSec = const Duration(milliseconds: 10);
+    double offset = 3;
+    double cacheValue = 0;
+    const oneSec = const Duration(milliseconds: 16);
     var callback = (timer) {
-      cacheValue+=offset;
-      if(cacheValue<=angle){
-        rotateAngle += offset;
+      cacheValue += offset;
+      if (cacheValue <= angle.abs()) {
+        if (angle >= 0) {
+          rotateAngle += offset;
+        } else {
+          rotateAngle -= offset;
+        }
         if (mounted) {
           setState(() {});
         }
-      }else{
+      } else {
         _timer.cancel();
       }
-
     };
-     _timer = Timer.periodic(oneSec, callback);
+    _timer = Timer.periodic(oneSec, callback);
     // moveController = AnimationController(
     //   vsync: this,
     //   duration: Duration(milliseconds: 500),
@@ -339,26 +349,5 @@ class Point {
       ..write("index=$index ")
       ..write("angle=$angle ");
     return valueBuffer.toString();
-  }
-}
-
-class CarouselPainter extends CustomPainter {
-  CarouselPainter({
-    this.children,
-  });
-
-  final List<Widget> children;
-
-  double width, height;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    width = size.width;
-    height = size.height;
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
   }
 }
