@@ -10,8 +10,9 @@ class CarouselPage extends StatefulWidget {
 }
 
 class CarouselState extends State<CarouselPage> {
-  double value = 0.3;
-  double scale = 0.5;
+  double value = 0;
+  double scale = 0;
+  double circleScale = 0;
   bool isAuto = false;
 
   @override
@@ -32,6 +33,7 @@ class CarouselState extends State<CarouselPage> {
               childWidth: 80,
               childHeight: 80,
               isAuto: isAuto,
+              circleScale: circleScale,
               children: [
                 Image(
                   image: ImageUtils.getAssetImage("boy"),
@@ -82,7 +84,7 @@ class CarouselState extends State<CarouselPage> {
             Positioned(
               left: 0,
               right: 0,
-              top: 0,
+              bottom: 0,
               child: Container(
                 color: Colors.white,
                 child: Column(
@@ -111,6 +113,22 @@ class CarouselState extends State<CarouselPage> {
                             value: this.scale,
                             onChanged: (result) {
                               this.scale = result;
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(" 半径："),
+                        Expanded(
+                          child: Slider(
+                            value: this.circleScale,
+                            onChanged: (result) {
+                              this.circleScale = result;
                               if (mounted) {
                                 setState(() {});
                               }

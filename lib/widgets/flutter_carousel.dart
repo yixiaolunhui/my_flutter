@@ -15,6 +15,7 @@ class CarouselLayout extends StatefulWidget {
     this.minScale = 0.8,
     this.isAuto = false,
     this.autoSweepAngle = 0.2,
+    this.circleScale = 1,
   }) : super(key: key);
 
   //所有的子控件
@@ -32,6 +33,9 @@ class CarouselLayout extends StatefulWidget {
   //最小缩放比 子控件的滑动时最小比例
   final double minScale;
 
+  //圆形缩放系数
+  final double circleScale;
+
   //是否自动
   final bool isAuto;
 
@@ -44,6 +48,7 @@ class CarouselLayout extends StatefulWidget {
 
 class CarouselState extends State<CarouselLayout>
     with TickerProviderStateMixin {
+  //所有子布局的位置信息
   List<Point> childPointList = [];
 
   //滑动系数
@@ -61,11 +66,13 @@ class CarouselState extends State<CarouselLayout>
   //按下时的角度
   double downAngle = 0.0;
 
+  //大小
   Size size;
 
   //半径
   double radius = 0.0;
 
+  //旋转计时器
   Timer _rotateTimer;
 
   AnimationController _controller;
@@ -147,6 +154,10 @@ class CarouselState extends State<CarouselLayout>
 
   ///子控件集
   List<Point> _childPointList({Size size = Size.zero}) {
+    size = Size(
+      max(this.widget.childWidth, size.width * this.widget.circleScale),
+      max(this.widget.childWidth, size.height * this.widget.circleScale),
+    );
     //清空之前的数据
     childPointList?.clear();
     if (this.widget.children?.isNotEmpty ?? false) {
@@ -162,10 +173,12 @@ class CarouselState extends State<CarouselLayout>
         var cosValue = cos(angle);
         var coordinateX = size.width / 2 - radius * cosValue;
         var coordinateY = size.height / 2 -
-            radius * sinValue * sin(pi / (1 + this.widget.deviationRatio));
+            radius * sinValue * sin(pi / 2) * (1-this.widget.deviationRatio);
         var minScale = min(this.widget.minScale, 0.99);
         var scale = ((1 - minScale) / 2 * (1 - sin(angle)) + minScale);
         childPointList.add(Point(
+          coordinateX,
+          coordinateY,
           this.widget.childWidth * scale,
           this.widget.childHeight * scale,
           coordinateX - this.widget.childWidth * scale / 2,
@@ -190,7 +203,8 @@ class CarouselState extends State<CarouselLayout>
       BuildContext context,
       BoxConstraints constraints,
     ) {
-      size = constraints.biggest;
+      var minSize = min(constraints.biggest.width, constraints.biggest.height);
+      size = Size(minSize, minSize);
       return GestureDetector(
         ///滑动按下
         onHorizontalDragDown: (DragDownDetails details) {
@@ -225,7 +239,8 @@ class CarouselState extends State<CarouselLayout>
         },
         behavior: HitTestBehavior.opaque,
         child: CustomPaint(
-          size: constraints.biggest,
+          size: size,
+          painter: CarouselPainter(),
           child: Stack(
             children: _childPointList(size: size).map(
               (Point point) {
@@ -249,8 +264,29 @@ class CarouselState extends State<CarouselLayout>
   }
 }
 
+class CarouselPainter extends CustomPainter {
+  CarouselPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 3;
+    Rect rect = new Rect.fromLTRB(0, 0, size.width, size.height);
+    canvas.drawRect(rect, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
+}
+
 class Point {
   Point(
+    this.centerX,
+    this.centerY,
     this.width,
     this.height,
     this.left,
@@ -262,6 +298,8 @@ class Point {
     this.index,
   );
 
+  double centerX;
+  double centerY;
   double width;
   double height;
   double left;

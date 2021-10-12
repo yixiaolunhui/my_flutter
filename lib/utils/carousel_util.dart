@@ -37,15 +37,15 @@ class CarouselUtil {
     //子控件集合拆分为2个集合，左边及右边
     childList?.forEach((child) {
       //根据子控件的中心的x坐标与中心点x左边对比区分
-      if (child.x <= size.width / 2) {
+      if (child.centerX <= size.width / 2) {
         leftChildList.add(child);
       } else {
         rightChildList.add(child);
       }
     });
     //按照y坐标排序
-    leftChildList.sort((a, b) => (a.y).compareTo(b.y));
-    rightChildList.sort((a, b) => (a.y).compareTo(b.y));
+    leftChildList.sort((a, b) => (a.centerY).compareTo(b.centerY));
+    rightChildList.sort((a, b) => (a.centerY).compareTo(b.centerY));
 
     var leftIndex = 0;
     var rightIndex = 0;
