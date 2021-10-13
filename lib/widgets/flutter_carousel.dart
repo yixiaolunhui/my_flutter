@@ -101,7 +101,7 @@ class CarouselState extends State<CarouselLayout>
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 800),
     );
 
     animation = CurvedAnimation(
@@ -113,12 +113,13 @@ class CarouselState extends State<CarouselLayout>
       ..addListener(() {
         //当前速度
         var velocity = animation.value * -velocityX;
-        var offsetX = velocity * 5 / (2 * pi * radius);
+        var offsetX = radius != 0 ? velocity * 5 / (2 * pi * radius) : velocity;
         rotateAngle += offsetX;
         setState(() => {});
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
+          rotateAngle = rotateAngle % 360;
           _startRotateTimer();
         }
       });
@@ -173,7 +174,7 @@ class CarouselState extends State<CarouselLayout>
         var cosValue = cos(angle);
         var coordinateX = size.width / 2 - radius * cosValue;
         var coordinateY = size.height / 2 -
-            radius * sinValue * sin(pi / 2) * (1-this.widget.deviationRatio);
+            radius * sinValue * sin(pi / 2 * (1 - this.widget.deviationRatio));
         var minScale = min(this.widget.minScale, 0.99);
         var scale = ((1 - minScale) / 2 * (1 - sin(angle)) + minScale);
         childPointList.add(Point(
@@ -227,7 +228,7 @@ class CarouselState extends State<CarouselLayout>
 
         ///滑动结束
         onHorizontalDragEnd: (DragEndDetails details) {
-          //每秒像素x数
+          //x和y方向上每秒速度的像素数
           velocityX = details.velocity.pixelsPerSecond.dx;
           _controller.reset();
           _controller.forward();
@@ -240,17 +241,15 @@ class CarouselState extends State<CarouselLayout>
         behavior: HitTestBehavior.opaque,
         child: CustomPaint(
           size: size,
-          painter: CarouselPainter(),
           child: Stack(
+            alignment: AlignmentDirectional.center,
             children: _childPointList(size: size).map(
               (Point point) {
                 return Positioned(
-                  width: point.width,
-                  height: point.height,
-                  left: point.left,
-                  top: point.top,
-                  child: this.widget.children[point.index],
-                );
+                    width: point.width,
+                    left: point.left,
+                    top: point.top,
+                    child: this.widget.children[point.index]);
               },
             ).toList(),
           ),
@@ -261,25 +260,6 @@ class CarouselState extends State<CarouselLayout>
 
   double xToAngle(double offsetX) {
     return offsetX * slipRatio;
-  }
-}
-
-class CarouselPainter extends CustomPainter {
-  CarouselPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.red
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 3;
-    Rect rect = new Rect.fromLTRB(0, 0, size.width, size.height);
-    canvas.drawRect(rect, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
   }
 }
 

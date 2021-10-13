@@ -71,4 +71,9 @@ class CarouselUtil {
   static double angle(double l, double radius) {
     return l * 360 / (2 * pi * (radius));
   }
+
+
+  static int currentTimeMillis() {
+    return new DateTime.now().millisecondsSinceEpoch;
+  }
 }
