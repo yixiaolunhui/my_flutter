@@ -55,7 +55,7 @@ class CarouselState extends State<CarouselLayout>
   final slipRatio = 0.5;
 
   //开始角度
-  double startAngle = 270;
+  double startAngle = 0;
 
   //旋转角度
   double rotateAngle = 0.0;
@@ -169,23 +169,23 @@ class CarouselState extends State<CarouselLayout>
       //半径
       radius = size.width / 2 - this.widget.childWidth / 2;
       for (int i = 0; i < count; i++) {
-        double angle = (startAngle - averageAngle * i + rotateAngle) * pi / 180;
-        var sinValue = sin(angle);
-        var cosValue = cos(angle);
-        var coordinateX = size.width / 2 - radius * cosValue;
-        var coordinateY = size.height / 2 -
-            radius * sinValue * sin(pi / 2 * (1 - this.widget.deviationRatio));
+        //角度=180°×弧度÷π   弧度=角度×π÷180°
+        double angle = (startAngle + averageAngle * i - rotateAngle) * pi / 180;
+        // x=width/2+sin(a)*R   y=height/2+cos(a)*R
+        var centerX = size.width / 2 + sin(angle) * radius;
+        var centerY = size.height / 2 +
+            cos(angle) * radius * sin(pi / 2 * (1 - this.widget.deviationRatio));
         var minScale = min(this.widget.minScale, 0.99);
-        var scale = ((1 - minScale) / 2 * (1 - sin(angle)) + minScale);
+        var scale = (1 - minScale) / 2 * (1 + cos(angle)) + minScale;
         childPointList.add(Point(
-          coordinateX,
-          coordinateY,
+          centerX,
+          centerY,
           this.widget.childWidth * scale,
           this.widget.childHeight * scale,
-          coordinateX - this.widget.childWidth * scale / 2,
-          coordinateY - this.widget.childHeight * scale / 2,
-          coordinateX + this.widget.childWidth * scale / 2,
-          coordinateY + this.widget.childHeight * scale / 2,
+          centerX - this.widget.childWidth * scale / 2,
+          centerY - this.widget.childHeight * scale / 2,
+          centerX + this.widget.childWidth * scale / 2,
+          centerY + this.widget.childHeight * scale / 2,
           scale,
           angle,
           i,

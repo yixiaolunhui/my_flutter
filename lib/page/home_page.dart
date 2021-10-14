@@ -72,27 +72,27 @@ class HomeState extends State<HomePage> {
                 },
               ),
               SizedBox(height: 50),
-              MaterialButton(
-                color: Colors.blue,
-                height: 50,
-                child: Text(
-                  "半透明的Widget",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onPressed: () {
-                  //跳转方式
-                  Navigator.push(
-                      context,
-                      DialogRoute(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return TranslucentPage();
-                          }));
-                  //dialog方式
-                  // showDialog(context: context, builder: (_) => TestPage());
-                },
-              ),
-              SizedBox(height: 50),
+              // MaterialButton(
+              //   color: Colors.blue,
+              //   height: 50,
+              //   child: Text(
+              //     "半透明的Widget",
+              //     style: const TextStyle(fontWeight: FontWeight.bold),
+              //   ),
+              //   onPressed: () {
+              //     //跳转方式
+              //     Navigator.push(
+              //         context,
+              //         DialogRoute(
+              //             context: context,
+              //             builder: (BuildContext context) {
+              //               return TranslucentPage();
+              //             }));
+              //     //dialog方式
+              //     // showDialog(context: context, builder: (_) => TestPage());
+              //   },
+              // ),
+              // SizedBox(height: 50),
               MaterialButton(
                 color: Colors.blue,
                 height: 50,

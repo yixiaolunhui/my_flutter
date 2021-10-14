@@ -11,8 +11,8 @@ class CarouselPage extends StatefulWidget {
 
 class CarouselState extends State<CarouselPage> {
   double value = 0;
-  double scale = 0;
-  double circleScale = 0;
+  double scale = 1;
+  double circleScale = 1;
   bool isAuto = false;
 
   @override
@@ -91,7 +91,7 @@ class CarouselState extends State<CarouselPage> {
                   children: [
                     Row(
                       children: [
-                        Text(" Y轴旋转："),
+                        Text(" X轴旋转："),
                         Expanded(
                           child: Slider(
                             value: this.value,
