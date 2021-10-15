@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_flutter/app/route_helper.dart';
 import 'package:my_flutter/utils/image_utils.dart';
 import 'package:my_flutter/widgets/custom_app_bar.dart';
 import 'package:my_flutter/widgets/flutter_carousel.dart';
@@ -21,6 +22,15 @@ class CarouselState extends State<CarouselPage> {
       backgroundColor: Colors.black,
       appBar: CustomAppBar(
           title: "旋转木马",
+          //导航栏右侧菜单
+          actions: <Widget>[
+            CupertinoButton(
+              child: Text("圆形布局"),
+              onPressed: () {
+                Navigator.pushNamed(context, RouteHelper.carouselStudyPage);
+              },
+            ),
+          ],
           onBack: () {
             Navigator.pop(context);
           }),

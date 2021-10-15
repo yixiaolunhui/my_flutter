@@ -6,11 +6,13 @@ class CustomAppBar extends AppBar {
   CustomAppBar({
     String title,
     ParamVoidCallback onBack,
+    List<Widget> actions,
   }) : super(
           brightness: Brightness.light,
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 0,
+          actions: actions,
           title: Text(
             title,
             style: TextStyle(
@@ -18,13 +20,6 @@ class CustomAppBar extends AppBar {
               fontWeight: FontWeight.bold,
             ),
           ),
-          // bottom: PreferredSize(
-          //   child: Container(
-          //     color: Colors.red,
-          //     width: double.infinity,
-          //     height: 3,
-          //   ),
-          // ),
           leading: onBack == null
               ? new Container()
               : new IconButton(

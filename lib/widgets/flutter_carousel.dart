@@ -101,12 +101,12 @@ class CarouselState extends State<CarouselLayout>
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: Duration(milliseconds: 1000),
     );
 
     animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeIn,
+      curve: Curves.linearToEaseOut,
     );
 
     animation = new Tween<double>(begin: 1, end: 0).animate(animation)
@@ -159,8 +159,7 @@ class CarouselState extends State<CarouselLayout>
       max(this.widget.childWidth, size.width * this.widget.circleScale),
       max(this.widget.childWidth, size.height * this.widget.circleScale),
     );
-    //清空之前的数据
-    childPointList?.clear();
+    childPointList?.clear(); //清空之前的数据
     if (this.widget.children?.isNotEmpty ?? false) {
       //子控件数量
       int count = this.widget.children.length;
@@ -169,14 +168,15 @@ class CarouselState extends State<CarouselLayout>
       //半径
       radius = size.width / 2 - this.widget.childWidth / 2;
       for (int i = 0; i < count; i++) {
-        //角度=180°×弧度÷π   弧度=角度×π÷180°
-        double angle = (startAngle + averageAngle * i - rotateAngle) * pi / 180;
-        // x=width/2+sin(a)*R   y=height/2+cos(a)*R
-        var centerX = size.width / 2 + sin(angle) * radius;
-        var centerY = size.height / 2 +
-            cos(angle) * radius * sin(pi / 2 * (1 - this.widget.deviationRatio));
+        //当前子控件的角度
+        double angle = startAngle + averageAngle * i - rotateAngle;
+        //当前子控件的中心点坐标  x=width/2+sin(a)*R   y=height/2+cos(a)*R
+        var centerX = size.width / 2 + sin(radian(angle)) * radius;
+        var centerY = size.height / 2 + cos(radian(angle)) * radius *
+                cos(pi / 2 * this.widget.deviationRatio);
         var minScale = min(this.widget.minScale, 0.99);
-        var scale = (1 - minScale) / 2 * (1 + cos(angle)) + minScale;
+        var scale = (1 - minScale) / 2 * (1 + cos(radian(angle - startAngle))) +
+            minScale;
         childPointList.add(Point(
           centerX,
           centerY,
@@ -198,37 +198,48 @@ class CarouselState extends State<CarouselLayout>
     return childPointList;
   }
 
+  ///角度转弧度
+  ///弧度 =度数 * (π / 180）
+  ///度数 =弧度 * (180 / π）
+  double radian(double angle) {
+    return angle * pi / 180;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (
       BuildContext context,
       BoxConstraints constraints,
     ) {
-      var minSize = min(constraints.biggest.width, constraints.biggest.height);
+      var minSize = min(constraints.maxWidth, constraints.maxHeight);
       size = Size(minSize, minSize);
       return GestureDetector(
-        ///滑动按下
+        ///水平滑动按下
         onHorizontalDragDown: (DragDownDetails details) {
           _cancelRotateTimer(); //取消自动移动
           _controller?.stop();
         },
 
-        ///滑动开始
+        ///水平滑动开始
         onHorizontalDragStart: (DragStartDetails details) {
+          //记录拖动开始时当前的选择角度值
           downAngle = rotateAngle;
+          //记录拖动开始时的x坐标
           downX = details.globalPosition.dx;
         },
 
-        ///滑动中
+        ///水平滑动中
         onHorizontalDragUpdate: (DragUpdateDetails details) {
+          //滑动中X坐标值
           var updateX = details.globalPosition.dx;
-          rotateAngle = xToAngle(downX - updateX) + downAngle;
+          //计算当前旋转角度值并刷新
+          rotateAngle = (downX - updateX) * slipRatio + downAngle;
           if (mounted) setState(() {});
         },
 
-        ///滑动结束
+        ///水平滑动结束
         onHorizontalDragEnd: (DragEndDetails details) {
-          //x和y方向上每秒速度的像素数
+          //x方向上每秒速度的像素数
           velocityX = details.velocity.pixelsPerSecond.dx;
           _controller.reset();
           _controller.forward();
@@ -257,26 +268,12 @@ class CarouselState extends State<CarouselLayout>
       );
     });
   }
-
-  double xToAngle(double offsetX) {
-    return offsetX * slipRatio;
-  }
 }
 
+///子控件属性对象
 class Point {
-  Point(
-    this.centerX,
-    this.centerY,
-    this.width,
-    this.height,
-    this.left,
-    this.top,
-    this.right,
-    this.bottom,
-    this.scale,
-    this.angle,
-    this.index,
-  );
+  Point(this.centerX, this.centerY, this.width, this.height, this.left,
+      this.top, this.right, this.bottom, this.scale, this.angle, this.index);
 
   double centerX;
   double centerY;
@@ -289,20 +286,4 @@ class Point {
   double scale;
   double angle;
   int index;
-
-  @override
-  String toString() {
-    StringBuffer valueBuffer = new StringBuffer();
-    valueBuffer
-      ..write("width=$width ")
-      ..write("height=$height ")
-      ..write("left=$left ")
-      ..write("top=$top ")
-      ..write("right=$right ")
-      ..write("bottom=$bottom ")
-      ..write("scale=$scale ")
-      ..write("angle=$angle ")
-      ..write("index=$index ");
-    return valueBuffer.toString();
-  }
 }

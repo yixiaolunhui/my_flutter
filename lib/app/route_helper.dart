@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_flutter/page/carousel_page.dart';
+import 'package:my_flutter/page/carousel_study_page.dart';
 import 'package:my_flutter/page/clock_page.dart';
 import 'package:my_flutter/page/floating_page.dart';
 import 'package:my_flutter/page/home_page.dart';
@@ -42,6 +43,9 @@ class RouteHelper {
   ///旋转木马
   static const String carouselPage = 'carousel';
 
+  ///旋转木马分步实现页面
+  static const String carouselStudyPage = 'carousel_study';
+
   ///路由与页面绑定注册
   static Map<String, WidgetBuilder> routes = {
     homePage: (context) => HomePage(),
@@ -54,5 +58,6 @@ class RouteHelper {
     canvasPage: (context) => CanvasPage(),
     translucentPage: (context) => TranslucentPage(),
     carouselPage: (context) => CarouselPage(),
+    carouselStudyPage: (context) => CarouselStudyPage(),
   };
 }
