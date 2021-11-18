@@ -141,7 +141,7 @@ class CarouselState extends State<CarouselLayout>
     if (_rotateTimer == null) {
       _rotateTimer = new Timer.periodic(new Duration(milliseconds: 5), (timer) {
         rotateAngle += this.widget.autoSweepAngle;
-        rotateAngle %= 360; // 取个模 防止sweepAngle爆表
+        rotateAngle %= 360; // 取个模 防止数值爆表
         setState(() {});
       });
     }
@@ -175,8 +175,7 @@ class CarouselState extends State<CarouselLayout>
         var centerY = size.height / 2 + cos(radian(angle)) * radius *
                 cos(pi / 2 * this.widget.deviationRatio);
         var minScale = min(this.widget.minScale, 0.99);
-        var scale = (1 - minScale) / 2 * (1 + cos(radian(angle - startAngle))) +
-            minScale;
+        var scale = (1 - minScale) / 2 * (1 + cos(radian(angle - startAngle))) + minScale;
         childPointList.add(Point(
           centerX,
           centerY,
@@ -252,8 +251,8 @@ class CarouselState extends State<CarouselLayout>
         behavior: HitTestBehavior.opaque,
         child: CustomPaint(
           size: size,
-          child: Stack(
-            alignment: AlignmentDirectional.center,
+          child:
+          Stack(
             children: _childPointList(size: size).map(
               (Point point) {
                 return Positioned(

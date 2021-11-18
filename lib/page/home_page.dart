@@ -92,7 +92,20 @@ class HomeState extends State<HomePage> {
               //     // showDialog(context: context, builder: (_) => TestPage());
               //   },
               // ),
-              // SizedBox(height: 50),
+
+              MaterialButton(
+                color: Colors.blue,
+                height: 50,
+                child: Text(
+                  "旋转木马展示",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, RouteHelper.carouselShowPage);
+                },
+              ),
+
+              SizedBox(height: 50),
               MaterialButton(
                 color: Colors.blue,
                 height: 50,
@@ -104,6 +117,7 @@ class HomeState extends State<HomePage> {
                   Navigator.pushNamed(context, RouteHelper.carouselPage);
                 },
               ),
+
             ],
           ),
         ),
