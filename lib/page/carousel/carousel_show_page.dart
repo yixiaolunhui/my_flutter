@@ -24,21 +24,13 @@ class CarouselShowState extends State<CarouselShowPage> {
         child: Stack(
           children: [
             CarouselLayout(
-              deviationRatio: 0.7,
+              deviationRatio: 0.8,
               minScale: 0.5,
               childWidth: 85,
               childHeight: 85,
               isAuto: true,
               circleScale: 1,
               children: [
-                Image(
-                  image: ImageUtils.getAssetImage("muma2"),
-                  filterQuality: FilterQuality.high,
-                ),
-                Image(
-                  image: ImageUtils.getAssetImage("muma2"),
-                  filterQuality: FilterQuality.high,
-                ),
                 Image(
                   image: ImageUtils.getAssetImage("muma2"),
                   filterQuality: FilterQuality.high,

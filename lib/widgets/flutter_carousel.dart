@@ -119,7 +119,7 @@ class CarouselState extends State<CarouselLayout>
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          rotateAngle = rotateAngle % 360;
+          // rotateAngle = rotateAngle % 360;
           _startRotateTimer();
         }
       });
@@ -141,7 +141,7 @@ class CarouselState extends State<CarouselLayout>
     if (_rotateTimer == null) {
       _rotateTimer = new Timer.periodic(new Duration(milliseconds: 5), (timer) {
         rotateAngle += this.widget.autoSweepAngle;
-        rotateAngle %= 360; // 取个模 防止数值爆表
+        // rotateAngle %= 360; // 取个模 防止数值爆表
         setState(() {});
       });
     }
