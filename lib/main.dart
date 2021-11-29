@@ -5,6 +5,7 @@ import 'package:my_flutter/app/app.dart';
 import 'package:my_flutter/app/route_helper.dart';
 import 'package:my_flutter/base/flutter_lifecycle_state.dart';
 import 'package:my_flutter/page/home_page.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
